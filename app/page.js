@@ -1,7 +1,6 @@
 // app/page.js
 import Nav from "../components/Nav";
 import Hero from "../components/Hero";
-import "./globals.css";
 
 export default function Home() {
   return (
