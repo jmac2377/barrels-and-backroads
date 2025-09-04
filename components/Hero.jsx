@@ -1,25 +1,34 @@
 // components/Hero.jsx
 import Image from "next/image";
+import styles from "./Hero.module.css"; // import a CSS module for styling
 
 export default function Hero() {
   return (
     <header
       style={{
         position: "relative",
-        minHeight: "80vh",            // ← change this number to control hero height
+        minHeight: "100vh",
         borderBottom: "1px solid #222",
         overflow: "hidden",
       }}
     >
-      {/* Background image */}
+      {/* Desktop Hero Image */}
       <Image
         src="/hero.jpg"
         alt="Barrels & Backroads"
         fill
-        // Use ONE of these objectFit modes:
-        // contain = show entire barrel (may letterbox)
-        // cover   = fill width (may crop)
-        style={{ objectFit: "contain", objectPosition: "center" }}
+        className={`${styles.heroImg} ${styles.desktopImg}`}
+        style={{ objectFit: "cover", objectPosition: "center" }}
+        priority
+      />
+
+      {/* Mobile Hero Image */}
+      <Image
+        src="/hero-mobile.jpg"
+        alt="Barrels & Backroads"
+        fill
+        className={`${styles.heroImg} ${styles.mobileImg}`}
+        style={{ objectFit: "cover", objectPosition: "center" }}
         priority
       />
 

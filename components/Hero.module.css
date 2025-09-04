@@ -1,0 +1,21 @@
+.heroImg {
+  z-index: 0;
+}
+
+.desktopImg {
+  display: block;
+}
+
+.mobileImg {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktopImg {
+    display: none;
+  }
+  .mobileImg {
+    display: block;
+    filter: brightness(1.3); /* brighten mobile hero */
+  }
+}
