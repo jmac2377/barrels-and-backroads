@@ -1,69 +1,121 @@
-// components/Hero.jsx
+"use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import styles from "./Hero.module.css"; // import a CSS module for styling
+import styles from "./Hero.module.css";
 
 export default function Hero() {
-  return (
-    <header
-      style={{
-        position: "relative",
-        minHeight: "100vh",
-        borderBottom: "1px solid #222",
-        overflow: "hidden",
-      }}
-    >
-      {/* Desktop Hero Image */}
-      <Image
-        src="/hero.jpg"
-        alt="Barrels & Backroads"
-        fill
-        className={`${styles.heroImg} ${styles.desktopImg}`}
-        style={{ objectFit: "cover", objectPosition: "center" }}
-        priority
-      />
+  // Phase 1 (SSR/first paint): rely on CSS-only swap (both images in DOM)
+  // Phase 2 (after mount): render a single, correct image
+  const [mounted, setMounted] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(false);
 
-      {/* Mobile Hero Image */}
-      <Image
-        src="/hero-mobile.jpg"
-        alt="Barrels & Backroads"
-        fill
-        className={`${styles.heroImg} ${styles.mobileImg}`}
-        style={{ objectFit: "cover", objectPosition: "center" }}
-        priority
-      />
+  const computePortrait = () => {
+    const vv = typeof window !== "undefined" ? window.visualViewport : null;
+    const w = vv?.width ?? window.innerWidth;
+    const h = vv?.height ?? window.innerHeight;
+    const mql =
+      typeof window !== "undefined"
+        ? window.matchMedia("(orientation: portrait)")
+        : { matches: false };
+    return mql.matches || h >= w;
+  };
 
-      {/* Gradient overlay for readability */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.6))",
-        }}
-      />
+  useEffect(() => {
+    setMounted(true);
 
-      {/* Content */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 1,
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          color: "#f3f3f3",
-          padding: "4rem 1.5rem",
-        }}
-      >
-        <div>
-          <h1 style={{ fontSize: 44, marginBottom: 10 }}>
-            Find the perfect road. Sip the perfect pour.
-          </h1>
-          <p style={{ opacity: 0.85, fontSize: 18 }}>
-            Scenic drives · hidden whiskey bars · places worth stopping.
-          </p>
+    const update = () => setIsPortrait(computePortrait());
+
+    // run now + delayed rechecks for URL bar settle on Android
+    update();
+    const t1 = setTimeout(update, 120);
+    const t2 = setTimeout(update, 400);
+
+    const onPageShow = () => {
+      update();
+      const t3 = setTimeout(update, 160);
+      const t4 = setTimeout(update, 650);
+      timeouts.push(t3, t4);
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        update();
+        const t5 = setTimeout(update, 150);
+        timeouts.push(t5);
+      }
+    };
+
+    const timeouts = [t1, t2];
+
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
+    window.addEventListener("pageshow", onPageShow);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", update);
+      window.visualViewport.addEventListener("scroll", update);
+    }
+
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+      window.removeEventListener("pageshow", onPageShow);
+      document.removeEventListener("visibilitychange", onVisibility);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", update);
+        window.visualViewport.removeEventListener("scroll", update);
+      }
+      timeouts.forEach(clearTimeout);
+    };
+  }, []);
+
+  // PHASE 1 (before mount): render both with CSS choosing which shows (instant)
+  if (!mounted) {
+    return (
+      <header className={styles.hero} suppressHydrationWarning>
+        <Image
+          src="/hero.jpg"
+          alt="Barrels & Backroads"
+          fill
+          className={`${styles.heroImage} ${styles.cssLandscape}`}
+          sizes="100vw"
+          priority
+        />
+        <Image
+          src="/hero-mobile.jpg"
+          alt="Barrels & Backroads (portrait)"
+          fill
+          className={`${styles.heroImage} ${styles.cssPortrait}`}
+          sizes="100vw"
+          priority
+        />
+        <div className={styles.heroOverlay} />
+        <div className={styles.heroContent}>
+          <h1>Barrels & Backroads</h1>
+          <p>Whiskey. Roads. Adventure.</p>
         </div>
+      </header>
+    );
+  }
+
+  // PHASE 2 (after mount): render exactly one, based on accurate viewport
+  const src = isPortrait ? "/hero-mobile.jpg" : "/hero.jpg";
+  return (
+    <header className={styles.hero} suppressHydrationWarning>
+      <Image
+        key={src}
+        src={src}
+        alt="Barrels & Backroads"
+        fill
+        className={styles.heroImage}
+        sizes="100vw"
+        priority
+      />
+      <div className={styles.heroOverlay} />
+      <div className={styles.heroContent}>
+        <h1>Barrels & Backroads</h1>
+        <p>Whiskey. Roads. Adventure.</p>
       </div>
     </header>
   );
