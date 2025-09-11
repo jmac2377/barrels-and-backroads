@@ -24,7 +24,7 @@
   height: 100%;
   position: absolute;
   inset: 0;
-  filter: brightness(2.3);
+  filter: brightness(1.7);
 }
 
 /* On portrait viewports, fit the entire image */
