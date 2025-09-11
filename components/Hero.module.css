@@ -19,11 +19,20 @@
 
 .heroImage {
   object-fit: cover;
+  object-position: center;
   width: 100%;
   height: 100%;
   position: absolute;
   inset: 0;
   filter: brightness(0.8);
+}
+
+/* On portrait viewports, fit the entire image */
+@media (orientation: portrait) {
+  .heroImage {
+    object-fit: contain;
+    background-color: #000; /* black bars fill if aspect doesn’t match */
+  }
 }
 
 .heroOverlay {
