@@ -28,9 +28,11 @@
   .heroImage {
     object-fit: fill !important;
     background-color: #000;
+    filter: brightness(1.7) contrast(1); /* lock Samsung Internet rendering */
   }
   .hero { min-height: 100svh; }
 }
+
 
 .heroOverlay {
   position: absolute;
