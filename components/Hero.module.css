@@ -1,38 +1,35 @@
 .hero {
   position: relative;
-  border-bottom: 1px solid #222;
   overflow: hidden;
-
-  /* Desktop/tablet baseline */
-  min-height: 80vh;
-}
-
-/* Prefer dynamic viewport height on Android/modern browsers */
-@supports (min-height: 100dvh) {
-  .hero { min-height: 80dvh; }
-}
-
-/* Secondary fallback for other engines */
-@supports (min-height: 100svh) {
-  .hero { min-height: 80lvh; }
+  min-height: clamp(480px, 62vw, 80vh);
 }
 
 .heroImage {
-  object-fit: cover;
+  object-fit: fill;           /* ← default = fill (desktop/laptop) */
   object-position: center;
   width: 100%;
   height: 100%;
   position: absolute;
   inset: 0;
-  filter: brightness(1.7);
+  filter: brightness(1.7) contrast(1); /* normalize Samsung Internet rendering */
 }
 
-/* On portrait viewports, fit the entire image */
+/* Portrait phones: keep perfect contain */
 @media (orientation: portrait) {
   .heroImage {
     object-fit: contain;
-    background-color: #000; /* black bars fill if aspect doesn’t match */
+    filter: brightness(1.7) contrast(1); /* keep fix in portrait too */
   }
+}
+
+
+/* Small landscape phones: avoid zoom + prevent scroll jump */
+@media (orientation: landscape) and (max-height: 500px) {
+  .heroImage {
+    object-fit: fill !important;
+    background-color: #000;
+  }
+  .hero { min-height: 100svh; }
 }
 
 .heroOverlay {
@@ -56,32 +53,27 @@
 .heroContent h1 { font-size: 3rem; margin: 0; }
 .heroContent p  { font-size: 1.25rem; }
 
-/* ===== CSS-only first paint swap ===== */
+/* CSS-only first paint swap */
 .cssPortrait { display: none; }
 .cssLandscape { display: block; }
-
-/* Show portrait image when viewport is tall OR device reports portrait */
 @media (orientation: portrait), (max-aspect-ratio: 1/1) {
   .cssPortrait { display: block; }
   .cssLandscape { display: none; }
 }
 
-/* Mobile portrait guarantee */
-@media (max-width: 768px) {
-  .hero { min-height: 70vh; }
-  @supports (min-height: 100dvh) {
-    .hero { min-height: 100dvh; }
-  }
-  @supports not (min-height: 100dvh) and (min-height: 100svh) {
-    .hero { min-height: 100svh; }
-  }
+/* Mobile portrait typography + stable height */
+@media (max-width: 768px) and (orientation: portrait) {
+  .hero { min-height: 100svh; }
   .heroContent h1 { font-size: 2rem; }
   .heroContent p  { font-size: 1rem; }
 }
 
-/* Safety net: never collapse */
+/* Safety net */
 .hero::after {
   content: "";
   display: block;
   min-height: 1px;
 }
+
+/* (Still available if you keep the JS toggle) */
+.contain { object-fit: contain !important; background-color: #000; }

@@ -90,11 +90,15 @@ export default function Hero() {
           sizes="100vw"
           priority
         />
-        <div className={styles.heroOverlay} />
-        <div className={styles.heroContent}>
-          <h1>Barrels & Backroads</h1>
-          <p>Whiskey. Roads. Adventure.</p>
+      <div className={styles.heroOverlay} />
+      <div className={styles.heroContent}>
+        <h1>Barrels &amp; Backroads</h1>
+        <p className={styles.subhead}>Whiskey. Roads. Adventure.</p>
+        <div className={styles.ctaRow}>
+          <a href="/routes" className="btn btnPrimary">Explore Routes</a>
+          <a href="/stops" className="btn btnGhost">Find Whiskey Stops</a>
         </div>
+      </div>
       </header>
     );
   }
@@ -114,8 +118,12 @@ export default function Hero() {
       />
       <div className={styles.heroOverlay} />
       <div className={styles.heroContent}>
-        <h1>Barrels & Backroads</h1>
-        <p>Whiskey. Roads. Adventure.</p>
+        <h1>Barrels &amp; Backroads</h1>
+        <p className={styles.subhead}>Whiskey. Roads. Adventure.</p>
+        <div className={styles.ctaRow}>
+          <a href="/routes" className="btn btnPrimary">Explore Routes</a>
+          <a href="/stops" className="btn btnGhost">Find Whiskey Stops</a>
+        </div>
       </div>
     </header>
   );
