@@ -1,0 +1,39 @@
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #000;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+  top: 0;
+  z-index: 1000;
+  transform: translateZ(0);
+}
+
+.logo a {
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: #fff;
+}
+
+.links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.links a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 1rem;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.links a:hover {
+  opacity: 0.7;
+}

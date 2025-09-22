@@ -1,0 +1,57 @@
+.header {
+  background-color: #000;   /* black bar */
+  text-align: center;
+  padding: 20px 16px;
+  border-bottom: 1px solid #222;
+}
+
+.tagline {
+  color: #fff;              /* white text */
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtagline {
+  color: #ccc;              /* softer gray */
+  font-size: 0.95rem;
+  margin: 6px 0 0;
+}
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand a {
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: #000;                  /* explicit: brand stays black */
+  text-decoration: none;
+}
+
+/* If your brand is a white SVG and disappears on white,
+   uncomment this to invert it:
+   .brand img { filter: invert(1); }
+*/
+
+.nav {
+  display: flex;
+  gap: 20px;
+}
+
+.link {
+  color: #000;                  /* ensure links are black */
+  text-decoration: none;
+}
+
+.link:hover,
+.link:focus {
+  color: #333;                  /* subtle hover */
+  text-decoration: none;
+}

@@ -1,0 +1,42 @@
+.footer {
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  padding: 1.5rem 1rem 2rem; /* top tighter on all, bottom stays roomy */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.copy {
+  font-size: 0.9rem;
+  margin: 0.25rem 0;
+}
+
+.location {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 0.25rem;
+}
+
+/* Tighten gap between hero and footer on mobile */
+@media (max-width: 768px) {
+  .footer {
+    margin-top: -10px;
+  }
+}
+
+/* Mobile adjustments for About block */
+@media (max-width: 768px) {
+  .aboutBlock {
+    margin-bottom: 0.5rem !important; /* reduce large gap */
+  }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding-top: 0.5rem;  /* was 1rem from earlier step */
+    padding-bottom: 1rem;
+  }
+  .aboutBlock h3 {
+    margin-top: 0;        /* belt-and-suspenders: prevents margin collapse */
+  }
+}
