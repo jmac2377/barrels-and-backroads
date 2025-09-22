@@ -1,81 +1,80 @@
+/* Base hero container */
 .hero {
-  position: relative;
-  overflow: hidden;
-  min-height: clamp(480px, 62vw, 80vh);
-}
-
-.heroImage {
-  object-fit: fill;           /* ← default = fill (desktop/laptop) */
-  object-position: center;
+  position: relative;               /* required for next/image fill */
   width: 100%;
-  height: 100%;
-  position: absolute;
-  inset: 0;
-  filter: brightness(1.7) contrast(1); /* normalize Samsung Internet rendering */
+  height: 100dvh;                   /* use dynamic viewport height globally */
+  overflow: hidden;
+  background-color: #000;
+  filter: brightness(var(--hero-brightness, 1.2)); /* sane fallback */
+  margin-bottom: 0;                 /* new */
+  padding-bottom: 0;                /* new */
 }
 
-/* Portrait phones: keep perfect contain */
+/* First paint swap: CSS background before JS mounts */
+.swapFirstPaint {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;                         /* desktop/landscape = full bleed */
+  background-image: url("/images/hero-desktop.jpg");
+}
+
+/* Portrait fallback for first paint */
 @media (orientation: portrait) {
-  .heroImage {
-    object-fit: contain;
-    filter: brightness(1.7) contrast(1); /* keep fix in portrait too */
+  .swapFirstPaint {
+    background-image: url("/images/hero-mobile.jpg");
+    background-size: contain; /* portrait = show full image, avoid crop */
+    background-color: #000;   /* letterbox = black bars (intentional) */
+    background-position: center;
   }
 }
 
-
-/* Small landscape phones: avoid zoom + prevent scroll jump */
-@media (orientation: landscape) and (max-height: 500px) {
-  .heroImage {
-    object-fit: fill !important;
-    background-color: #000;
-    filter: brightness(1.7) contrast(1); /* lock Samsung Internet rendering */
+/* Fix hero height issue on mobile browsers */
+@media (max-width: 768px) {
+  .hero {
+    height: 100dvh; /* use dynamic viewport height instead of static svh */
   }
-  .hero { min-height: 100svh; }
 }
 
-
-.heroOverlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  pointer-events: none;
-}
-
-.heroContent {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  color: #fff;
-  padding: 1rem;
-  min-height: inherit;
-}
-
-.heroContent h1 { font-size: 3rem; margin: 0; }
-.heroContent p  { font-size: 1.25rem; }
-
-/* CSS-only first paint swap */
-.cssPortrait { display: none; }
-.cssLandscape { display: block; }
-@media (orientation: portrait), (max-aspect-ratio: 1/1) {
-  .cssPortrait { display: block; }
-  .cssLandscape { display: none; }
-}
-
-/* Mobile portrait typography + stable height */
+/* Narrow phones in portrait: trim hero height to reduce the bottom gap */
 @media (max-width: 768px) and (orientation: portrait) {
-  .hero { min-height: 100svh; }
-  .heroContent h1 { font-size: 2rem; }
-  .heroContent p  { font-size: 1rem; }
+  .hero {
+    height: 70dvh; /* adjust to taste: try 80–86dvh */
+  }
 }
 
-/* Safety net */
-.hero::after {
-  content: "";
-  display: block;
-  min-height: 1px;
+/* Header height offsets (no globals; CSS Modules safe) */
+.hero {
+  /* desktop/laptop header assumed ~64px */
+  margin-top: 64px;
+  height: calc(100dvh - 64px);
 }
 
-/* (Still available if you keep the JS toggle) */
-.contain { object-fit: contain !important; background-color: #000; }
+/* Mobile: shorter header */
+@media (max-width: 768px) {
+  .hero {
+    /* tune to your actual mobile header height if needed */
+    margin-top: 56px;
+    height: calc(100dvh - 56px);
+  }
+}
+
+/* Portrait phones: keep your trimmed 70dvh intent, minus header */
+@media (max-width: 768px) and (orientation: portrait) {
+  .hero {
+    height: calc(70dvh - 56px);
+  }
+}
+
+/* --- PATCH B: remove fixed-header offsets for sticky nav --- */
+.hero {
+  margin-top: 0 !important;   /* kill the 64px/56px margins */
+  height: 100dvh !important;  /* full viewport height; no calc offsets */
+}
+
+/* Keep your portrait trim intent, just without header math */
+@media (max-width: 768px) and (orientation: portrait) {
+  .hero {
+    margin-top: 0 !important;
+    height: 70dvh !important; /* preserves your 70dvh choice */
+  }
+}

@@ -1,0 +1,53 @@
+/* styles/globals.css */
+
+/* Baseline 1 global variable */
+:root {
+  --hero-brightness: 1.7; /* locked baseline */
+}
+
+/* (optional) simple resets — helps keep things clean */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: sans-serif;
+}
+
+/* --- Fixed header dimensions + page offset --- */
+:root {
+  --nav-height: 64px;   /* adjust if you want taller/shorter */
+}
+
+html {
+  scroll-padding-top: var(--nav-height);
+}
+
+/* Offset page so content never hides under a fixed header */
+body {
+  padding-top: var(--nav-height);
+}
+
+/* styles/globals.css */
+.header-spacer {
+  height: 64px;
+  background: #000; /* make spacer match the header */
+}
+
+@media (max-width: 768px) {
+  .header-spacer {
+    height: 56px;
+    background: #000;
+  }
+}
+
+/* Slightly shorter on phones */
+@media (max-width: 768px) {
+  .header-spacer {
+    height: 56px;
+  }
+}
