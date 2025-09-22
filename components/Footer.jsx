@@ -5,20 +5,21 @@ export default function Footer() {
     <footer className={styles.footer}>
 {/* About Section */}
 <div className="aboutBlock" style={{ marginBottom: "1.5rem" }}>
-  <h3
-    style={{
-      fontSize: "1.2rem",
-      fontWeight: "bold",
-      marginBottom: "0.5rem",
-    }}
-  >
+<h3
+  style={{
+    fontSize: "2rem",
+    fontWeight: "bold",
+    marginTop: 0,               // <-- add this
+    marginBottom: "0.5rem",
+  }}
+>
     About Barrels & Backroads
   </h3>
   <p
     style={{
-      fontSize: "0.95rem",
+      fontSize: "01.25rem",
       lineHeight: "1.5",
-      maxWidth: "700px",
+      maxWidth: "800px",
       margin: "0 auto",
     }}
   >
