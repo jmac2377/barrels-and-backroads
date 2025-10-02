@@ -27,6 +27,13 @@ export default function Footer() {
     rooms, and cozy spots to land for the night.
   </p>
 </div>
+
+{/* Responsible Drinking Disclaimer */}
+<p className={styles.disclaimer}>
+  Barrels &amp; Backroads reminds you to enjoy responsibly. Always have a
+  designated driver. Never drink and drive.
+</p>
+
       <p className={styles.copy}>
         © {new Date().getFullYear()} Barrels &amp; Backroads
       </p>

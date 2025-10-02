@@ -40,3 +40,11 @@
     margin-top: 0;        /* belt-and-suspenders: prevents margin collapse */
   }
 }
+
+.disclaimer {
+  font-size: 0.75rem; /* small */
+  color: rgba(255, 255, 255, 0.6); /* subtle */
+  margin: 1rem auto;
+  max-width: 800px;
+  text-align: center;
+}
