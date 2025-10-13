@@ -34,14 +34,18 @@
 }
 
 .links a {
+  display: inline-block;                 /* enable border underline */
   text-decoration: none;
   color: #fff;
   font-size: 1rem;
-  transition: opacity 0.2s ease-in-out;
+  padding-bottom: 2px;                   /* space for underline */
+  border-bottom: 2px solid transparent;  /* hidden by default */
+  transition: border-color 0.18s ease, opacity 0.2s ease-in-out;
 }
 
 .links a:hover {
-  opacity: 0.7;
+  border-bottom-color: #C38E31;          /* whiskey-amber underline on hover */
+  opacity: 1;                            /* do not dim on hover */
 }
 
 /* --- Mobile additions --- */
@@ -101,3 +105,7 @@
     padding: 0.25rem 0;
   }
 }
+
+.links a { -webkit-tap-highlight-color: transparent; }
+
+.links a[aria-current="page"] { border-bottom-color: #C38E31; }
