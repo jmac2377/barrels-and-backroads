@@ -1,0 +1,117 @@
+/* app/routes/Routes.module.css */
+
+.routesPage {
+  min-height: 60vh;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+/* Top intro */
+.hero {
+  margin-bottom: 2.5rem;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: #f5c46a;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.lead {
+  max-width: 42rem;
+  color: #d4d4d4;
+  line-height: 1.6;
+}
+
+/* Route list */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.75rem;
+}
+
+@media (min-width: 800px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.card {
+  background: #0d0d0d;
+  border: 1px solid #262626;
+  border-radius: 18px;
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #a3a3a3;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.meta {
+  font-size: 0.85rem;
+  color: #a3a3a3;
+}
+
+.copy {
+  font-size: 0.95rem;
+  color: #d4d4d4;
+  line-height: 1.5;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.chip {
+  border-radius: 999px;
+  border: 1px solid #404040;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  color: #d4d4d4;
+}
+
+.linkRow {
+  margin-top: 0.9rem;
+}
+
+.link {
+  font-size: 0.9rem;
+  color: #f5c46a;
+  text-decoration: none;
+  border-bottom: 1px solid #f5c46a;
+  padding-bottom: 1px;
+}
+
+.link:hover {
+  color: #ffe2a0;
+  border-color: #ffe2a0;
+}
+
+.hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #a3a3a3;
+}

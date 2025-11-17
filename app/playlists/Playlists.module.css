@@ -1,0 +1,127 @@
+/* app/playlists/Playlists.module.css */
+
+.playlistsPage {
+  min-height: 60vh;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+/* Top intro */
+.hero {
+  margin-bottom: 2.75rem;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: #f5c46a;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.lead {
+  max-width: 44rem;
+  color: #d4d4d4;
+  line-height: 1.6;
+}
+
+/* Main layout */
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.1fr);
+  gap: 2.5rem;
+}
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Story column */
+.story h2 {
+  font-size: 1.1rem;
+  margin: 1.75rem 0 0.6rem;
+}
+
+.story p {
+  color: #d4d4d4;
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
+}
+
+.storyList {
+  color: #d4d4d4;
+  line-height: 1.6;
+  margin: 0.5rem 0 1rem 1.2rem;
+}
+
+/* Cards column */
+.cardStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.card {
+  background: #0d0d0d;
+  border: 1px solid #262626;
+  border-radius: 18px;
+  padding: 1.4rem 1.3rem;
+}
+
+.cardTitle {
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.cardTag {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #a3a3a3;
+  margin-bottom: 0.35rem;
+}
+
+.cardBody {
+  font-size: 0.9rem;
+  color: #d4d4d4;
+  line-height: 1.6;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+  color: #a3a3a3;
+}
+
+.metaPill {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid #333333;
+}
+
+/* Spotify embeds */
+.embedWrapper {
+  margin-top: 0.9rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.embedFrame {
+  width: 100%;
+  height: 352px; /* matches your Spotify snippets */
+  border: 0;
+  border-radius: 12px;
+}

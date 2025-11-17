@@ -1,0 +1,102 @@
+/* app/gallery/Gallery.module.css */
+
+.galleryPage {
+  min-height: 60vh;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+/* Top intro */
+.hero {
+  margin-bottom: 2.75rem;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  color: #f5c46a;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.lead {
+  max-width: 44rem;
+  color: #d4d4d4;
+  line-height: 1.6;
+}
+
+/* Main layout */
+.main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr);
+  gap: 2.5rem;
+}
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Copy column */
+.story h2 {
+  font-size: 1.1rem;
+  margin: 1.75rem 0 0.6rem;
+}
+
+.story p {
+  color: #d4d4d4;
+  line-height: 1.6;
+  margin-bottom: 0.8rem;
+}
+
+/* Grid column */
+.gridWrap h2 {
+  font-size: 1.05rem;
+  margin-bottom: 0.8rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.tile {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid #262626;
+  background: #0d0d0d;
+}
+
+.tile img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.tileLabel {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.6rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: #f5f5f5;
+}
+
+.gridNote {
+  margin-top: 0.8rem;
+  font-size: 0.8rem;
+  color: #a3a3a3;
+}

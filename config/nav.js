@@ -4,7 +4,7 @@ const navItems = [
   { label: "Routes", href: "/routes" },
   { label: "Stays", href: "/stays" },
   { label: "Playlists", href: "/playlists" },
-  { label: "Gear", href: "/gear" },
+  { label: "Merch", href: "/merch" },
   { label: "Blog", href: "/blog" },
   { label: "Recipes", href: "/recipes" }, // added
   { label: "Gallery", href: "/gallery" }, // added
