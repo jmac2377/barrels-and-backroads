@@ -35,7 +35,7 @@ export default function Footer() {
 </p>
 
       <p className={styles.copy}>
-        © {new Date().getFullYear()} Barrels &amp; Backroads
+        © 2025 Barrels &amp; Backroads
       </p>
       <p className={styles.location}>Loveland, CO</p>
 
