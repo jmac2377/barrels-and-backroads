@@ -26,9 +26,7 @@ export default function RoutesPage() {
         {/* Aspen Run card */}
         <article className={styles.card}>
           <p className={styles.tag}>Colorado • Featured route</p>
-          <h2 className={styles.cardTitle}>
-            Aspen Run — Independence Pass Loop
-          </h2>
+          <h2 className={styles.cardTitle}>Aspen Run — Independence Pass Loop</h2>
           <p className={styles.meta}>Full-day drive · High mountain passes</p>
 
           <p className={styles.copy}>
@@ -48,9 +46,34 @@ export default function RoutesPage() {
               View route overview
             </Link>
             <p className={styles.hint}>
-              Want a version tailored to your dates and starting point? Ask for a
-              custom build on the Contact page.
+              Want a version tailored to your dates and starting point? Visit our Route Planner and design your trip.
             </p>
+          </div>
+        </article>
+
+        {/* Route Planner card */}
+        <article className={styles.card}>
+          <p className={styles.tag}>Tool • Build your own</p>
+          <h2 className={styles.cardTitle}>Route Planner</h2>
+          <p className={styles.meta}>Start · Stops · End · Share link</p>
+
+          <p className={styles.copy}>
+            Build a route your way. Add a start and end, stack stops in between, then
+            kick it straight over to Google Maps. Save multiple trips right in your
+            browser.
+          </p>
+
+          <div className={styles.chipRow}>
+            <span className={styles.chip}>Custom</span>
+            <span className={styles.chip}>Shareable</span>
+            <span className={styles.chip}>Saved trips</span>
+          </div>
+
+          <div className={styles.linkRow}>
+            <Link href="/routes/planner" className={styles.link}>
+              Open Route Planner
+            </Link>
+            <p className={styles.hint}>No account. No fluff. Just build and go.</p>
           </div>
         </article>
       </div>

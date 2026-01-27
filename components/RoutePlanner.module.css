@@ -1,0 +1,260 @@
+.wrap {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 16px 44px;
+}
+
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.sub {
+  margin: 10px 0 0;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* --- Inputs / Buttons --- */
+
+.input {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  padding: 12px 14px;
+  outline: none;
+}
+
+.input::placeholder {
+  opacity: 0.55;
+}
+
+.input:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.btn {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  padding: 12px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.smallBtn {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.smallBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- Save row (Trip name / Save / Load / Delete) --- */
+
+.saveRow {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.select {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  padding: 12px 14px;
+  outline: none;
+}
+
+.select:focus {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* --- Start / End --- */
+
+.startEndRow {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  opacity: 0.7;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* --- Add stop row --- */
+
+.addRow {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+/* --- Stops list --- */
+
+.sectionHead {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.count {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.list {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.item {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meta {
+  font-size: 12px;
+  opacity: 0.65;
+  margin-bottom: 4px;
+}
+
+.stopText {
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.itemActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* --- Footer actions --- */
+
+.footerActions {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.footerLeft {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.primaryLink {
+  display: inline-block;
+  text-align: center;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #fff;
+  color: #000;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.primaryLinkDisabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.tip {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* --- Responsive layout improvements --- */
+
+@media (min-width: 640px) {
+  .saveRow {
+    grid-template-columns: 1.2fr auto 1fr auto;
+    align-items: center;
+  }
+
+  .startEndRow {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .addRow {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .itemActions {
+    justify-content: flex-end;
+  }
+
+  .footerActions {
+    grid-template-columns: auto auto auto auto 1fr;
+    align-items: center;
+  }
+
+  .tip {
+    justify-self: end;
+  }
+}

@@ -14,7 +14,7 @@
 .swapFirstPaint {
   background-position: center;
   background-repeat: no-repeat;
-  background-size: cover;                         /* desktop/landscape = full bleed */
+  background-size: contain;                         /* desktop/landscape = full bleed */
   background-image: url("/images/hero-desktop.jpg");
 }
 
