@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import RoutePlanner from "./RoutePlanner";
+import RoutePlanner from "../../../components/RoutePlanner";
 
 export const metadata = {
   title: "Route Planner — Barrels & Backroads",
