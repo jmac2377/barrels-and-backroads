@@ -2,7 +2,7 @@
 .hero {
   position: relative;               /* required for next/image fill */
   width: 100%;
-  height: 100dvh;                   /* use dynamic viewport height globally */
+  height: 50dvh;                   /* use dynamic viewport height globally */
   overflow: hidden;
   background-color: #000;
   filter: brightness(var(--hero-brightness, 1.2)); /* sane fallback */
@@ -76,5 +76,19 @@
   .hero {
     margin-top: 0 !important;
     height: 70dvh !important; /* preserves your 70dvh choice */
+  }
+}
+
+/* Desktop hero size + image scale adjustment */
+@media (min-width: 769px) {
+  .hero {
+    height: 50dvh !important;
+  }
+
+  .swapFirstPaint {
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+    background-color: #000;
   }
 }
