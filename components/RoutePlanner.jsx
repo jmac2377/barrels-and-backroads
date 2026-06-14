@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import styles from "./RoutePlanner.module.css";
 
-const STORAGE_KEY = "bb_route_planner_v1"; // current autosave
-const STORAGE_SAVED = "bb_route_planner_saved_v1"; // multiple saved trips
+const STORAGE_KEY = "bb_route_planner_v1";
+const STORAGE_SAVED = "bb_route_planner_saved_v1";
 
 function normalizeStop(s) {
   return (s || "").trim().replace(/\s+/g, " ");
@@ -23,14 +24,13 @@ function buildGoogleMapsDirectionsUrl(start, waypoints, end) {
   return `https://www.google.com/maps/dir/${segments}`;
 }
 
-// Share param: ?r=<urlencoded json>
-// { s: "start", e: "end", w: ["stop1","stop2"] }
 function encodeRoute({ start, end, stops }) {
   const payload = {
     s: normalizeStop(start),
     e: normalizeStop(end),
     w: (stops || []).map(normalizeStop).filter(Boolean),
   };
+
   return encodeURIComponent(JSON.stringify(payload));
 }
 
@@ -41,7 +41,9 @@ function decodeRoute(routeParam) {
 
     const start = normalizeStop(parsed?.s || "");
     const end = normalizeStop(parsed?.e || "");
-    const stops = Array.isArray(parsed?.w) ? parsed.w.map(normalizeStop).filter(Boolean) : [];
+    const stops = Array.isArray(parsed?.w)
+      ? parsed.w.map(normalizeStop).filter(Boolean)
+      : [];
 
     return { start, end, stops };
   } catch {
@@ -51,6 +53,7 @@ function decodeRoute(routeParam) {
 
 function safeReadJSON(key, fallback) {
   if (typeof window === "undefined") return fallback;
+
   try {
     const raw = window.localStorage.getItem(key);
     if (!raw) return fallback;
@@ -62,6 +65,7 @@ function safeReadJSON(key, fallback) {
 
 function safeWriteJSON(key, value) {
   if (typeof window === "undefined") return;
+
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {}
@@ -76,14 +80,22 @@ export default function RoutePlanner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const directionsRendererRef = useRef(null);
+
+  const [mapError, setMapError] = useState("");
+  const [mapStatus, setMapStatus] = useState(
+    "Enter a start and end to preview the route."
+  );
+
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [newStop, setNewStop] = useState("");
   const [stops, setStops] = useState([]);
 
-  // multiple saves
   const [tripName, setTripName] = useState("");
-  const [savedTrips, setSavedTrips] = useState([]); // [{id,name,route:{start,end,stops},updatedAt}]
+  const [savedTrips, setSavedTrips] = useState([]);
   const [selectedTripId, setSelectedTripId] = useState("");
 
   const directionsUrl = useMemo(
@@ -91,10 +103,93 @@ export default function RoutePlanner() {
     [start, stops, end]
   );
 
-  // Load priority:
-  // A) Saved trips list
-  // B) URL ?r=...
-  // C) localStorage autosave
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadMap() {
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+      if (!apiKey) {
+        setMapError("Missing Google Maps API key.");
+        return;
+      }
+
+      try {
+        setOptions({
+          key: apiKey,
+          version: "weekly",
+        });
+
+        const { Map } = await importLibrary("maps");
+        const { DirectionsService, DirectionsRenderer } =
+          await importLibrary("routes");
+
+        if (cancelled || !mapRef.current) return;
+
+        const map = new Map(mapRef.current, {
+          center: { lat: 39.5501, lng: -105.7821 },
+          zoom: 7,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+        });
+
+        const renderer = new DirectionsRenderer({
+          map,
+          suppressMarkers: false,
+        });
+
+        mapInstanceRef.current = map;
+        directionsRendererRef.current = renderer;
+
+        const s = normalizeStop(start);
+        const e = normalizeStop(end);
+        const w = (stops || []).map(normalizeStop).filter(Boolean);
+
+        if (!s || !e) {
+          setMapStatus("Enter a start and end to preview the route.");
+          return;
+        }
+
+        setMapStatus("Loading route preview…");
+
+        const service = new DirectionsService();
+
+        service.route(
+          {
+            origin: s,
+            destination: e,
+            waypoints: w.map((stop) => ({
+              location: stop,
+              stopover: true,
+            })),
+            travelMode: google.maps.TravelMode.DRIVING,
+          },
+          (result, status) => {
+            if (cancelled) return;
+
+            if (status === "OK" && result) {
+              renderer.setDirections(result);
+              setMapStatus("Route preview loaded.");
+              setMapError("");
+            } else {
+  setMapStatus(`Route preview failed: ${status}`);
+            }
+          }
+        );
+      } catch (error) {
+        console.error(error);
+        setMapError("Google Map failed to load.");
+      }
+    }
+
+    loadMap();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [start, end, stops]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -102,34 +197,42 @@ export default function RoutePlanner() {
     setSavedTrips(Array.isArray(list) ? list : []);
 
     const r = searchParams.get("r");
+
     if (r) {
       const decoded = decodeRoute(r);
+
       if (decoded) {
         setStart(decoded.start);
         setEnd(decoded.end);
         setStops(decoded.stops);
         setNewStop("");
 
-        // persist what was loaded from URL to autosave
         try {
           window.localStorage.setItem(
             STORAGE_KEY,
-            JSON.stringify({ s: decoded.start, e: decoded.end, w: decoded.stops })
+            JSON.stringify({
+              s: decoded.start,
+              e: decoded.end,
+              w: decoded.stops,
+            })
           );
         } catch {}
       }
+
       return;
     }
 
-    // No URL route -> try autosave
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
+
       const parsed = JSON.parse(raw);
 
       const s = normalizeStop(parsed?.s || "");
       const e = normalizeStop(parsed?.e || "");
-      const w = Array.isArray(parsed?.w) ? parsed.w.map(normalizeStop).filter(Boolean) : [];
+      const w = Array.isArray(parsed?.w)
+        ? parsed.w.map(normalizeStop).filter(Boolean)
+        : [];
 
       if (s || e || w.length) {
         setStart(s);
@@ -138,10 +241,8 @@ export default function RoutePlanner() {
         setNewStop("");
       }
     } catch {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // Autosave on change (light debounce)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -166,6 +267,7 @@ export default function RoutePlanner() {
   function addStop() {
     const s = normalizeStop(newStop);
     if (!s) return;
+
     setStops((prev) => [...prev, s]);
     setNewStop("");
   }
@@ -178,8 +280,11 @@ export default function RoutePlanner() {
     setStops((prev) => {
       const next = [...prev];
       const j = i + dir;
+
       if (j < 0 || j >= next.length) return prev;
+
       [next[i], next[j]] = [next[j], next[i]];
+
       return next;
     });
   }
@@ -187,6 +292,7 @@ export default function RoutePlanner() {
   function swapStartEnd() {
     const s = start;
     const e = end;
+
     setStart(e);
     setEnd(s);
   }
@@ -198,6 +304,11 @@ export default function RoutePlanner() {
     setNewStop("");
     setTripName("");
     setSelectedTripId("");
+    setMapStatus("Enter a start and end to preview the route.");
+
+    if (directionsRendererRef.current) {
+      directionsRendererRef.current.setDirections({ routes: [] });
+    }
 
     router.replace(pathname, { scroll: false });
 
@@ -208,54 +319,53 @@ export default function RoutePlanner() {
     }
   }
 
-function saveTrip() {
-  const name = normalizeStop(tripName);
-  const s = normalizeStop(start);
-  const e = normalizeStop(end);
-  const w = (stops || []).map(normalizeStop).filter(Boolean);
+  function saveTrip() {
+    const name = normalizeStop(tripName);
+    const s = normalizeStop(start);
+    const e = normalizeStop(end);
+    const w = (stops || []).map(normalizeStop).filter(Boolean);
 
-  if (!name) return alert("Trip name is required.");
-  if (!s || !e) return alert("Start and End are required.");
+    if (!name) return alert("Trip name is required.");
+    if (!s || !e) return alert("Start and End are required.");
 
-  const now = Date.now();
+    const now = Date.now();
 
-  // Overwrite rule: if a trip with the same name exists (case-insensitive), update it
-  const existingIndex = savedTrips.findIndex(
-    (t) => (t?.name || "").trim().toLowerCase() === name.toLowerCase()
-  );
+    const existingIndex = savedTrips.findIndex(
+      (t) => (t?.name || "").trim().toLowerCase() === name.toLowerCase()
+    );
 
-  let next;
+    let next;
 
-  if (existingIndex >= 0) {
-    const existing = savedTrips[existingIndex];
-    const updated = {
-      ...existing,
-      name,
-      route: { start: s, end: e, stops: w },
-      updatedAt: now,
-    };
+    if (existingIndex >= 0) {
+      const existing = savedTrips[existingIndex];
 
-    // Move updated trip to top
-    next = [updated, ...savedTrips.filter((_, i) => i !== existingIndex)];
-    setSelectedTripId(updated.id);
-    alert("Updated.");
-  } else {
-    const item = {
-      id: makeId(),
-      name,
-      route: { start: s, end: e, stops: w },
-      updatedAt: now,
-    };
+      const updated = {
+        ...existing,
+        name,
+        route: { start: s, end: e, stops: w },
+        updatedAt: now,
+      };
 
-    next = [item, ...savedTrips];
-    setSelectedTripId(item.id);
-    alert("Saved.");
+      next = [updated, ...savedTrips.filter((_, i) => i !== existingIndex)];
+      setSelectedTripId(updated.id);
+      alert("Updated.");
+    } else {
+      const item = {
+        id: makeId(),
+        name,
+        route: { start: s, end: e, stops: w },
+        updatedAt: now,
+      };
+
+      next = [item, ...savedTrips];
+      setSelectedTripId(item.id);
+      alert("Saved.");
+    }
+
+    next = next.slice(0, 50);
+    setSavedTrips(next);
+    safeWriteJSON(STORAGE_SAVED, next);
   }
-
-  next = next.slice(0, 50);
-  setSavedTrips(next);
-  safeWriteJSON(STORAGE_SAVED, next);
-}
 
   function loadTrip(id) {
     const item = savedTrips.find((x) => x.id === id);
@@ -266,23 +376,23 @@ function saveTrip() {
     setStops(Array.isArray(item.route.stops) ? item.route.stops : []);
     setNewStop("");
     setSelectedTripId(id);
+    setTripName(item.name || "");
 
-      // AUTO NAME:
-  setTripName(item.name || "");
-
-    // remove ?r= so it doesn't override after load
     router.replace(pathname, { scroll: false });
   }
 
   function deleteTrip(id) {
     const next = savedTrips.filter((x) => x.id !== id);
+
     setSavedTrips(next);
     safeWriteJSON(STORAGE_SAVED, next);
+
     if (selectedTripId === id) setSelectedTripId("");
   }
 
   async function copyGoogleMapsLink() {
     if (!directionsUrl) return;
+
     try {
       await navigator.clipboard.writeText(directionsUrl);
       alert("Copied Google Maps link.");
@@ -313,7 +423,6 @@ function saveTrip() {
           Set your start and end, add optional stops, then open it in Google Maps.
         </p>
 
-        {/* Multiple saves */}
         <div className={styles.saveRow}>
           <input
             value={tripName}
@@ -321,6 +430,7 @@ function saveTrip() {
             placeholder="Trip name (e.g., Aspen Run)…"
             className={styles.input}
           />
+
           <button onClick={saveTrip} className={styles.btn} type="button">
             Save Trip
           </button>
@@ -387,9 +497,34 @@ function saveTrip() {
             placeholder="Optional stop (address, town, landmark)…"
             className={styles.input}
           />
-          <button onClick={addStop} disabled={!canAdd} className={styles.btn} type="button">
+
+          <button
+            onClick={addStop}
+            disabled={!canAdd}
+            className={styles.btn}
+            type="button"
+          >
             Add stop
           </button>
+        </div>
+
+        <div className={styles.mapBlock}>
+          <div className={styles.sectionHead}>
+            <h2 className={styles.sectionTitle}>Map Preview</h2>
+            <div className={styles.count}>{mapError || mapStatus}</div>
+          </div>
+
+          <div className={styles.mapShell}>
+            {mapError ? (
+              <div className={styles.mapFallback}>{mapError}</div>
+            ) : (
+              <div
+                ref={mapRef}
+                className={styles.map}
+                aria-label="Route map preview"
+              />
+            )}
+          </div>
         </div>
 
         <div className={styles.sectionHead}>
@@ -414,6 +549,7 @@ function saveTrip() {
                 >
                   ↑
                 </button>
+
                 <button
                   onClick={() => moveStop(i, 1)}
                   disabled={i === stops.length - 1}
@@ -422,7 +558,12 @@ function saveTrip() {
                 >
                   ↓
                 </button>
-                <button onClick={() => removeStop(i)} className={styles.smallBtn} type="button">
+
+                <button
+                  onClick={() => removeStop(i)}
+                  className={styles.smallBtn}
+                  type="button"
+                >
                   Remove
                 </button>
               </div>
@@ -435,6 +576,7 @@ function saveTrip() {
             <button onClick={swapStartEnd} className={styles.smallBtn} type="button">
               Swap Start/End
             </button>
+
             <button onClick={clearAll} className={styles.smallBtn} type="button">
               Clear
             </button>
@@ -444,7 +586,9 @@ function saveTrip() {
             href={directionsUrl || "#"}
             target="_blank"
             rel="noreferrer"
-            className={`${styles.primaryLink} ${!directionsUrl ? styles.primaryLinkDisabled : ""}`}
+            className={`${styles.primaryLink} ${
+              !directionsUrl ? styles.primaryLinkDisabled : ""
+            }`}
           >
             Open in Google Maps
           </a>
@@ -462,7 +606,9 @@ function saveTrip() {
             Copy share URL
           </button>
 
-          <div className={styles.tip}>Autosaves locally. Share URL reloads your route.</div>
+          <div className={styles.tip}>
+            Autosaves locally. Share URL reloads your route.
+          </div>
         </div>
       </div>
     </div>
