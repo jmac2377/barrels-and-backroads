@@ -76,6 +76,7 @@ function makeId() {
 }
 
 export default function RoutePlanner() {
+  const [routeStyle, setRouteStyle] = useState("fastest");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -164,6 +165,8 @@ export default function RoutePlanner() {
               stopover: true,
             })),
             travelMode: google.maps.TravelMode.DRIVING,
+avoidHighways: routeStyle === "backroads",
+avoidTolls: routeStyle === "backroads",
           },
           (result, status) => {
             if (cancelled) return;
@@ -188,8 +191,8 @@ export default function RoutePlanner() {
     return () => {
       cancelled = true;
     };
-  }, [start, end, stops]);
-
+ }, [start, end, stops, routeStyle]);
+ 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -464,6 +467,18 @@ export default function RoutePlanner() {
             Delete
           </button>
         </div>
+
+        <div className={styles.field}>
+  <div className={styles.label}>Route Style</div>
+  <select
+    className={styles.select}
+    value={routeStyle}
+    onChange={(e) => setRouteStyle(e.target.value)}
+  >
+    <option value="fastest">Fastest Route</option>
+    <option value="backroads">Backroads Route</option>
+  </select>
+</div>
 
         <div className={styles.startEndRow}>
           <div className={styles.field}>
