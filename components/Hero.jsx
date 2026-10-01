@@ -36,9 +36,10 @@ export default function Hero() {
           priority
           sizes="100vw"
           style={{
-            objectFit: "contain",
-            objectPosition: "center",
-          }}
+  objectFit: "contain",
+  objectPosition: "center",
+  transform: isPortrait ? "scale(1.95)" : "scale(1.20)",
+}}
         />
       )}
     </section>

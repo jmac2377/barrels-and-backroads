@@ -3,29 +3,25 @@ import styles from "./Footer.module.css";
 export default function Footer() {
   return (
     <footer className={styles.footer}>
-{/* About Section */}
-<div className="aboutBlock" style={{ marginBottom: "1.5rem" }}>
-<h3
-  style={{
-    fontSize: "2rem",
-    fontWeight: "bold",
-    marginTop: 0,               // <-- add this
-    marginBottom: "0.5rem",
-  }}
->
-    About Barrels & Backroads
+{/* Brand Section */}
+<div className={styles.brandBlock}>
+  <h3 className={styles.footerTitle}>
+    The road keeps going.
   </h3>
-  <p
-    style={{
-      fontSize: "01.25rem",
-      lineHeight: "1.5",
-      maxWidth: "800px",
-      margin: "0 auto",
-    }}
-  >
-    Road trips, scenic routes, and great whiskey. We’re mapping the best drives, tasting
-    rooms, and cozy spots to land for the night.
+
+  <p className={styles.footerLead}>
+    Follow the miles, the stories, and the spirit work as the journey continues.
   </p>
+
+  <p className={styles.footerIdentity}>
+    Navajo-owned and operated
+  </p>
+
+  <img
+    src="/images/bb-round-logo.png"
+    alt="Barrels & Backroads"
+    className={styles.footerMark}
+  />
 </div>
 
 {/* Responsible Drinking Disclaimer */}

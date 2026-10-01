@@ -48,3 +48,41 @@
   max-width: 800px;
   text-align: center;
 }
+
+.brandBlock {
+  max-width: 760px;
+  margin: 0 auto 1.5rem;
+}
+
+.footerMark {
+  display: block;
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  margin: 1.5rem auto 0;
+}
+
+.footerTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+}
+
+.footerLead {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.footerStatement {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #d4d4d4;
+  margin: 0.5rem 0 0;
+}
+
+.footerIdentity {
+  font-size: 0.85rem;
+  color: #f5b46a;
+  margin: 0.75rem 0 0;
+}

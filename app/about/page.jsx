@@ -14,23 +14,30 @@ export default function AboutPage() {
         <p className={styles.kicker}>About</p>
 
         <h1 className={styles.title}>
-          Barrels &amp; Backroads started as a daydream on the road.
+          Barrels &amp; Backroads started with a road, a pour, and an idea worth chasing.
         </h1>
 
         <p className={styles.lead}>
-          It&apos;s a small-batch brand built the long way around: real drives, real
-          bottles, and real nights spent figuring out how to stitch it all together.
-          No venture buzzwords. Just a couple of people who love a good route and a
-          good pour, and decided to build something around both.
+          It&apos;s a Navajo-owned and operated brand built the long way around —
+  through real miles, small-batch spirits, hands-on craftsmanship, and the
+  belief that the best things are rarely found on the fastest route. What
+  started as an idea on the road is becoming something bigger, one trip,
+  one batch, and one story at a time.
         </p>
 
                 <div className={styles.imageBlock}>
-          <img
-            src="/images/about-founder-jar.jpg"
-            alt="Tattooed arms holding a jar of small-batch spirit"
-            className={styles.image}
-          />
-        </div>
+  <img
+    src="/images/about-founder-jar.jpg"
+    alt="Tattooed arms holding a jar of small-batch spirit"
+    className={styles.image}
+  />
+
+  <img
+    src="/images/about-road-mountains.jpg"
+    alt="Mountain road leading toward the Tetons"
+    className={styles.image}
+  />
+</div>
       </div>
 
       {/* Main content */}
@@ -39,84 +46,93 @@ export default function AboutPage() {
         <div className={styles.story}>
           <h2>What Barrels &amp; Backroads is</h2>
           <p>
-            At its core, Barrels &amp; Backroads is simple: road trips and whiskey,
-            done with intention. Routes that feel like they were built for you, not
-            scraped from a list. Spirits that taste like someone actually cared what
-            went into the glass.
+            <p>
+  Barrels &amp; Backroads is about creating experiences worth remembering —
+  the road, the place you stop, the food, the music, the people you meet along the way, and the pour
+  waiting when the driving is done. The website is where those experiences come
+  together, alongside the small-batch spirit work happening behind the scenes.
+</p>
           </p>
           <p>
-            The brand grew out of miles in the mountains, late-night talks about
-            &quot;what if,&quot; and a stubborn streak that refused to settle for
-            generic. Every piece of it is hands-on — from the way routes are mapped,
-            to the recipes tested in small batches, to the little details that end up
-            on labels, flannels, and future merch.
+            Everything is built from firsthand experience and a hands-on mindset.
+  Routes are driven. Recipes are tested. Spirits are made in small batches.
+  Photos are taken along the way. Even the merchandise starts with ideas we
+  would actually wear, use, or carry ourselves. If it doesn&apos;t feel real,
+  useful, or worth sharing, it doesn&apos;t belong here.
           </p>
 
           <h2>Where it&apos;s headed</h2>
           <p>
-            Barrels &amp; Backroads is being built as a living thing: first the
-            routes, then the stays, then the bottles and the room where it all comes
-            together. The goal isn&apos;t to be everywhere — it&apos;s to be right
-            where it makes sense: on the roads, in the glasses, and in the moments
-            that actually feel worth remembering.
+            <p>
+  The next chapter is about building even richer experiences around both sides
+  of the brand: more routes, destinations, food, music, and stories on the road,
+  paired with behind-the-scenes spirit R&amp;D, recipe development, maturation, blending,
+  and eventually legal production.
+</p>
           </p>
           <p>
-            Over time, you&apos;ll see more route libraries, more stay lists, more
-            house spirits, and more ways to bring the brand into your own trips. But
-            the promise stays the same: it will always feel small-batch, even when it
-            grows.
+            The site will keep expanding with real-road travel content, destination
+  guides, playlists, recipes, and behind-the-scenes R&amp;D in spirit making —
+  from recipe development and fermentation to maturation, blending, and flavor
+  trials as we work toward future legal production. The long-term goal is
+  bigger than a website, but the approach stays the same: build it carefully,
+  keep it personal, and create something people can actually experience.
           </p>
         </div>
 
         {/* Pillars card */}
         <aside className={styles.card}>
-          <h2 className={styles.cardTitle}>What we believe in</h2>
+          <h2 className={styles.cardTitle}>What guides us</h2>
           <p className={styles.cardIntro}>
-            A few rules we try not to break — on the road, in the glass, and in the
-            way this brand is built.
+            We believe the best experiences are earned: by taking the longer road,
+  making things with care, paying attention to the details, and knowing when
+  to slow down and enjoy where you landed.
           </p>
 
           <ul className={styles.pillarsList}>
             <li className={styles.pillarItem}>
               <p className={styles.pillarLabel}>Real miles only</p>
               <p className={styles.pillarText}>
-                If we recommend a route, it&apos;s because it&apos;s been run, not
-                just zoomed in on. Weather, fuel stops, pull-offs, and &quot;don&apos;t
-                try this in winter&quot; all matter.
+                We believe the road should be experienced before it&apos;s recommended.
+  Routes are driven, stops are checked, and the details that matter — weather,
+  fuel, pull-offs, road conditions, and seasonal limitations — are learned
+  firsthand whenever possible.
               </p>
             </li>
 
             <li className={styles.pillarItem}>
               <p className={styles.pillarLabel}>Small-batch first</p>
               <p className={styles.pillarText}>
-                Whether it&apos;s a route, a recipe, or a piece of merch, it starts
-                small. Test it, refine it, then share it. No mass-produced soul.
+                We believe good things get better when they&apos;re built in small batches.
+  Start with an idea, test it, learn from it, refine it, and only then share it.
+  That applies to spirits, recipes, merch, and just about everything else we make.
               </p>
             </li>
 
             <li className={styles.pillarItem}>
               <p className={styles.pillarLabel}>Nights matter as much as miles</p>
               <p className={styles.pillarText}>
-                A good drive deserves a good landing. Cabins, lodges, tasting rooms,
-                or a quiet bar stool — the stop at the end is part of the route, not
-                an afterthought.
+                We believe the destination matters just as much as the drive. A good route
+  deserves a good place to land — somewhere worth eating, staying, relaxing,
+  and raising a glass once the keys are put away.
               </p>
             </li>
 
             <li className={styles.pillarItem}>
               <p className={styles.pillarLabel}>Respect the road, respect the pour</p>
               <p className={styles.pillarText}>
-                Designated drivers, clear heads behind the wheel, and no heroics.
-                Enjoy the whiskey when the keys are parked and the night has time to
-                breathe.
+                We believe both deserve your full attention. Drive with a clear head, know
+  when the keys are done for the night, and enjoy the pour with the same
+  respect for craft, place, and company that went into creating the experience.
               </p>
             </li>
           </ul>
 
           <p className={styles.smallNote}>
-            If that sounds like your lane, you&apos;re in the right place. Start with
-            a route, grab a stay, and we&apos;ll meet you somewhere between the miles
-            and the pour.
+            If that sounds like your kind of experience, you&apos;re in the right place.
+  Take the longer road, find somewhere worth stopping, and stay awhile.
+  We&apos;ll meet you somewhere between the miles, the stories, the pour —
+  and maybe one of our own whiskeys in the future.
           </p>
         </aside>
       </div>

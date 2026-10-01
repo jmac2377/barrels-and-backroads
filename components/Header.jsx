@@ -4,10 +4,11 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <h2 className={styles.tagline}>
-        Find the perfect road. Sip the perfect pour.
+        Roads, spirits, and experiences worth remembering.
       </h2>
+
       <p className={styles.subtagline}>
-        Scenic drives · hidden whiskey bars · places worth stopping.
+        Real routes · destination stories · small-batch spirit R&amp;D
       </p>
     </header>
   );

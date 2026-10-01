@@ -46,13 +46,32 @@ export default function Nav() {
   return (
     <nav ref={navRef} className={styles.nav} role="navigation" aria-label="Primary">
       {/* Brand — no underline */}
-      <div className={styles.logo}>
-        <Link href="/">
-          Barrels &amp; Backroads
-          <span style={{ fontSize: "0.7em", marginLeft: "0.15em" }}>™</span>
-        </Link>
-      </div>
+<div className={styles.logo}>
+  <Link
+    href="/"
+    className={styles.brand}
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "0.7rem",
+      color: "#fff",
+      textDecoration: "none",
+    }}
+  >
+    <img
+      src="/images/bb-round-logo.png"
+      alt=""
+      width="38"
+      height="38"
+      className={styles.brandMark}
+    />
 
+    <span className={styles.brandName}>
+      Barrels &amp; Backroads
+      <span className={styles.trademark}>™</span>
+    </span>
+  </Link>
+</div>
       {/* Mobile toggle */}
       <button
         type="button"

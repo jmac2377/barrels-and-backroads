@@ -17,11 +17,32 @@
 }
 
 /* Brand */
-.logo a {
-  font-size: 1.25rem;
-  font-weight: bold;
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
   text-decoration: none;
   color: #fff;
+}
+
+.brandMark {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-size: 1.11rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.trademark {
+  font-size: 0.6em;
+  margin-left: 0.15em;
+  vertical-align: super;
 }
 
 /* Desktop links */
