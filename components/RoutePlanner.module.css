@@ -1,62 +1,124 @@
+
+/* =========================================
+   BARRELS & BACKROADS — ROUTE PLANNER
+   Desktop: Split-screen workspace
+   Mobile: Stacked responsive layout
+   ========================================= */
+
+/* --- Main Layout --- */
+
 .wrap {
   width: 100%;
-  max-width: 980px;
+  max-width: 1560px;
   margin: 0 auto;
-  padding: 28px 16px 44px;
+  padding: 28px 24px 48px;
+  box-sizing: border-box;
+}
+
+.wrap * {
+  box-sizing: border-box;
 }
 
 .card {
+  width: 100%;
+  min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.35);
   border-radius: 18px;
-  padding: 22px;
+  padding: 28px;
 }
 
+/* --- Page Heading --- */
+
 .title {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 700;
   margin: 0;
+  line-height: 1.2;
 }
 
 .sub {
-  margin: 10px 0 0;
+  margin: 10px 0 24px;
   font-size: 14px;
+  line-height: 1.6;
   opacity: 0.85;
 }
 
-/* --- Inputs / Buttons --- */
+/* --- Split-Screen Workspace --- */
 
-.input {
+.plannerGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: 24px;
+  align-items: start;
   width: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.controlsPanel {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mapPanel {
+  min-width: 0;
+  width: 100%;
+}
+
+/* --- Shared Form Controls --- */
+
+.input,
+.select {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(0, 0, 0, 0.45);
   color: #fff;
   padding: 12px 14px;
+  font-size: 14px;
   outline: none;
 }
 
 .input::placeholder {
-  opacity: 0.55;
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.input:focus {
-  border-color: rgba(255, 255, 255, 0.35);
+.input:focus,
+.select:focus {
+  border-color: rgba(195, 142, 49, 0.7);
 }
+
+.select {
+  cursor: pointer;
+}
+
+/* --- Buttons --- */
 
 .btn {
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
   padding: 12px 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
 }
 
-.btn:disabled {
-  opacity: 0.45;
+.btn:hover:not(:disabled),
+.smallBtn:hover:not(:disabled) {
+  border-color: rgba(195, 142, 49, 0.7);
+  background: rgba(195, 142, 49, 0.12);
+}
+
+.btn:disabled,
+.smallBtn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -65,72 +127,70 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
-  padding: 8px 10px;
+  padding: 9px 12px;
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
 }
 
-.smallBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* --- Save row (Trip name / Save / Load / Delete) --- */
+/* --- Saved Trip Controls --- */
 
 .saveRow {
-  margin-top: 12px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
+  align-items: center;
+  margin-top: 0;
 }
 
-.select {
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.45);
-  color: #fff;
-  padding: 12px 14px;
-  outline: none;
+.saveRow > * {
+  min-width: 0;
 }
 
-.select:focus {
-  border-color: rgba(255, 255, 255, 0.35);
-}
+/* --- Route Style --- */
 
-/* --- Start / End --- */
-
-.startEndRow {
-  margin-top: 16px;
-  display: grid;
-  gap: 10px;
+.saveRow + .field {
+  margin-top: 18px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
 }
 
 .label {
   font-size: 12px;
-  opacity: 0.7;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  opacity: 0.75;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-/* --- Add stop row --- */
+/* --- Start and Destination --- */
 
-.addRow {
-  margin-top: 14px;
+.startEndRow {
+  margin-top: 18px;
   display: grid;
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
 }
 
-/* --- Stops list --- */
+/* --- Add Stops --- */
+
+.addRow {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+/* --- Section Headings --- */
 
 .sectionHead {
-  margin-top: 18px;
+  margin-top: 22px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -139,7 +199,8 @@
 
 .sectionTitle {
   font-size: 13px;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   opacity: 0.9;
   margin: 0;
@@ -147,35 +208,40 @@
 
 .count {
   font-size: 12px;
-  opacity: 0.6;
+  opacity: 0.65;
+  line-height: 1.5;
 }
 
+/* --- Stops List --- */
+
 .list {
-  margin-top: 10px;
+  margin-top: 12px;
   display: grid;
   gap: 10px;
 }
 
 .item {
+  min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.45);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .meta {
   font-size: 12px;
   opacity: 0.65;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .stopText {
   font-size: 14px;
   font-weight: 600;
-  word-break: break-word;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .itemActions {
@@ -184,83 +250,21 @@
   flex-wrap: wrap;
 }
 
-/* --- Footer actions --- */
+/* --- Map Preview --- */
 
-.footerActions {
+.mapBlock {
   margin-top: 18px;
-  display: grid;
-  gap: 10px;
+  width: 100%;
+  min-width: 0;
 }
 
-.footerLeft {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
+.mapPanel .mapBlock {
+  margin-top: 0;
 }
 
-.primaryLink {
-  display: inline-block;
-  text-align: center;
-  border-radius: 14px;
-  padding: 12px 14px;
-  font-weight: 700;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #fff;
-  color: #000;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.primaryLinkDisabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-.tip {
-  font-size: 12px;
-  opacity: 0.6;
-}
-
-/* --- Responsive layout improvements --- */
-
-@media (min-width: 640px) {
-  .saveRow {
-    grid-template-columns: 1.2fr auto 1fr auto;
-    align-items: center;
-  }
-}
-
-  .startEndRow {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .addRow {
-    grid-template-columns: 1fr auto;
-    align-items: center;
-  }
-
-  .item {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .itemActions {
-    justify-content: flex-end;
-  }
-
-  .footerActions {
-    grid-template-columns: auto auto auto auto 1fr;
-    align-items: center;
-  }
-
-  .tip {
-    justify-self: end;
-  }
-
-  .mapBlock {
-  margin-top: 18px;
+.mapPanel .sectionHead {
+  margin-top: 0;
+  margin-bottom: 12px;
 }
 
 .mapShell {
@@ -272,7 +276,14 @@
   background: #111;
 }
 
+/* Expanded map inside split-screen workspace */
+
+.mapPanel .mapShell {
+  height: clamp(520px, 66vh, 760px);
+}
+
 .map {
+  display: block;
   width: 100%;
   height: 100%;
 }
@@ -287,8 +298,182 @@
   text-align: center;
 }
 
+/* --- Bottom Action Bar --- */
+
+.footerActions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.footerLeft {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.primaryLink {
+  display: inline-block;
+  text-align: center;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid rgba(195, 142, 49, 0.5);
+  background: #fff;
+  color: #000;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.primaryLink:hover {
+  background: #e9d3a8;
+}
+
+.primaryLinkDisabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.tip {
+  flex-basis: 100%;
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.6;
+}
+
+
+/* --- Desktop Split-Screen Layout --- */
+
+@media (min-width: 1024px) {
+  .card {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-areas:
+      "title title"
+      "subtitle subtitle"
+      "saved map"
+      "style map"
+      "endpoints map"
+      "add map"
+      "stopsHead map"
+      "stops map"
+      "actions actions";
+    column-gap: 28px;
+    align-items: start;
+  }
+
+  .card > .title {
+    grid-area: title;
+  }
+
+  .card > .sub {
+    grid-area: subtitle;
+  }
+
+  .card > .saveRow {
+    grid-area: saved;
+  }
+
+  .card > .field {
+    grid-area: style;
+  }
+
+  .card > .startEndRow {
+    grid-area: endpoints;
+  }
+
+  .card > .addRow {
+    grid-area: add;
+  }
+
+  .card > .mapPanel {
+    grid-area: map;
+  }
+
+  .card > .sectionHead {
+    grid-area: stopsHead;
+  }
+
+  .card > .list {
+    grid-area: stops;
+  }
+
+  .card > .footerActions {
+    grid-area: actions;
+  }
+}
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 1023px) {
+  .wrap {
+    max-width: 900px;
+  }
+
+  .plannerGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .mapPanel .mapShell {
+    height: 460px;
+  }
+}
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
 @media (max-width: 700px) {
-  .mapShell {
+  .wrap {
+    padding: 18px 12px 32px;
+  }
+
+  .card {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .title {
+    font-size: 25px;
+  }
+
+  .sub {
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+
+  .plannerGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .saveRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .startEndRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .addRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .addRow .btn {
+    width: 100%;
+  }
+
+  .mapShell,
+  .mapPanel .mapShell {
     display: block;
     width: 100%;
     height: 340px;
@@ -297,9 +482,35 @@
   }
 
   .map {
-    display: block;
     width: 100%;
     height: 100%;
     min-height: 340px;
+  }
+
+  .sectionHead {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .footerActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .footerLeft {
+    width: 100%;
+  }
+
+  .primaryLink {
+    width: 100%;
+  }
+
+  .footerActions > .btn {
+    width: 100%;
+  }
+
+  .tip {
+    flex-basis: auto;
+    text-align: center;
   }
 }

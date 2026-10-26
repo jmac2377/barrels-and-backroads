@@ -12,16 +12,29 @@ function normalizeStop(s) {
   return (s || "").trim().replace(/\s+/g, " ");
 }
 
-function buildGoogleMapsDirectionsUrl(start, waypoints, end) {
+function buildGoogleMapsDirectionsUrl(start, waypoints, end, routeStyle) {
   const s = normalizeStop(start);
   const e = normalizeStop(end);
   const mids = (waypoints || []).map(normalizeStop).filter(Boolean);
 
   if (!s || !e) return "";
 
-  const all = [s, ...mids, e];
-  const segments = all.map((x) => encodeURIComponent(x)).join("/");
-  return `https://www.google.com/maps/dir/${segments}`;
+  const params = new URLSearchParams({
+    api: "1",
+    origin: s,
+    destination: e,
+    travelmode: "driving",
+  });
+
+  if (mids.length) {
+    params.set("waypoints", mids.join("|"));
+  }
+
+  if (routeStyle === "backroads") {
+    params.set("avoid", "highways,tolls");
+  }
+
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
 function encodeRoute({ start, end, stops }) {
@@ -99,10 +112,10 @@ export default function RoutePlanner() {
   const [savedTrips, setSavedTrips] = useState([]);
   const [selectedTripId, setSelectedTripId] = useState("");
 
-  const directionsUrl = useMemo(
-    () => buildGoogleMapsDirectionsUrl(start, stops, end),
-    [start, stops, end]
-  );
+const directionsUrl = useMemo(
+  () => buildGoogleMapsDirectionsUrl(start, stops, end, routeStyle),
+  [start, stops, end, routeStyle]
+);
 
   useEffect(() => {
     let cancelled = false;
@@ -186,10 +199,12 @@ avoidTolls: routeStyle === "backroads",
       }
     }
 
-    loadMap();
+      const timer = window.setTimeout(loadMap, 850);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
+
     };
  }, [start, end, stops, routeStyle]);
  
@@ -430,7 +445,7 @@ avoidTolls: routeStyle === "backroads",
           <input
             value={tripName}
             onChange={(e) => setTripName(e.target.value)}
-            placeholder="Trip name (e.g., Aspen Run)…"
+            placeholder="Trip name (e.g., Aspen Run, Kentucky Bourbon Trail)…"
             className={styles.input}
           />
 
@@ -523,25 +538,6 @@ avoidTolls: routeStyle === "backroads",
           </button>
         </div>
 
-        <div className={styles.mapBlock}>
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionTitle}>Map Preview</h2>
-            <div className={styles.count}>{mapError || mapStatus}</div>
-          </div>
-
-          <div className={styles.mapShell}>
-            {mapError ? (
-              <div className={styles.mapFallback}>{mapError}</div>
-            ) : (
-              <div
-                ref={mapRef}
-                className={styles.map}
-                aria-label="Route map preview"
-              />
-            )}
-          </div>
-        </div>
-
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>Stops</h2>
           <div className={styles.count}>{stops.length} total</div>
@@ -562,7 +558,7 @@ avoidTolls: routeStyle === "backroads",
                   className={styles.smallBtn}
                   type="button"
                 >
-                  ↑
+                
                 </button>
 
                 <button
@@ -586,7 +582,27 @@ avoidTolls: routeStyle === "backroads",
           ))}
         </div>
 
-        <div className={styles.footerActions}>
+        <div className={styles.mapPanel}>
+        <div className={styles.mapBlock}>
+          <div className={styles.sectionHead}>
+            <h2 className={styles.sectionTitle}>Map Preview</h2>
+            <div className={styles.count}>{mapError || mapStatus}</div>
+          </div>
+
+          <div className={styles.mapShell}>
+            {mapError ? (
+              <div className={styles.mapFallback}>{mapError}</div>
+            ) : (
+              <div
+                ref={mapRef}
+                className={styles.map}
+                aria-label="Route map preview"
+              />
+            )}
+          </div>
+        </div>
+        </div>
+<div className={styles.footerActions}>
           <div className={styles.footerLeft}>
             <button onClick={swapStartEnd} className={styles.smallBtn} type="button">
               Swap Start/End
