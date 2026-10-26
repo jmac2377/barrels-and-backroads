@@ -88,6 +88,43 @@ function makeId() {
   return `${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
+function isNearRoute(location, path, maxMiles = 10) {
+  if (!location || path.length < 2) return false;
+
+  const radians = Math.PI / 180;
+  const earthMiles = 3958.8;
+  const latitude = location.lat();
+  const longitude = location.lng();
+  const longitudeScale = Math.cos(latitude * radians);
+
+  function project(point) {
+    const longitudeDifference =
+      ((point.lng() - longitude + 540) % 360) - 180;
+
+    return {
+      x: longitudeDifference * radians * earthMiles * longitudeScale,
+      y: (point.lat() - latitude) * radians * earthMiles,
+    };
+  }
+
+  for (let i = 1; i < path.length; i++) {
+    const a = project(path[i - 1]);
+    const b = project(path[i]);
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const lengthSquared = dx * dx + dy * dy;
+    const t = lengthSquared
+      ? Math.max(0, Math.min(1, -(a.x * dx + a.y * dy) / lengthSquared))
+      : 0;
+
+    if (Math.hypot(a.x + t * dx, a.y + t * dy) <= maxMiles) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export default function RoutePlanner() {
   const [routeStyle, setRouteStyle] = useState("fastest");
   const router = useRouter();
@@ -107,6 +144,9 @@ export default function RoutePlanner() {
   const [end, setEnd] = useState("");
   const [newStop, setNewStop] = useState("");
   const [stops, setStops] = useState([]);
+  const [discoveredPlaces, setDiscoveredPlaces] = useState([]);
+  const [placesLoading, setPlacesLoading] = useState(false);
+  const [placesStatus, setPlacesStatus] = useState("");
 
   const [tripName, setTripName] = useState("");
   const [savedTrips, setSavedTrips] = useState([]);
@@ -135,20 +175,22 @@ const directionsUrl = useMemo(
         });
 
         const { Map } = await importLibrary("maps");
+        await importLibrary("places");
         const { DirectionsService, DirectionsRenderer } =
           await importLibrary("routes");
 
         if (cancelled || !mapRef.current) return;
 
-        const map = new Map(mapRef.current, {
+        const map = mapInstanceRef.current ?? new Map(mapRef.current, {
           center: { lat: 39.5501, lng: -105.7821 },
           zoom: 7,
+          mapId: "82d1efbf6473addea76e29b7",
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: true,
         });
 
-        const renderer = new DirectionsRenderer({
+        const renderer = directionsRendererRef.current ?? new DirectionsRenderer({
           map,
           suppressMarkers: false,
         });
@@ -280,6 +322,155 @@ avoidTolls: routeStyle === "backroads",
     return () => window.clearTimeout(t);
   }, [start, end, stops]);
 
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !discoveredPlaces.length) return;
+
+    let cancelled = false;
+    let infoWindow;
+    const markers = [];
+    const removeListeners = [];
+
+    async function showPlaceMarkers() {
+      try {
+        const [{ AdvancedMarkerElement }, { InfoWindow }] =
+          await Promise.all([
+            importLibrary("marker"),
+            importLibrary("maps"),
+          ]);
+
+        if (cancelled) return;
+
+        infoWindow = new InfoWindow();
+
+        discoveredPlaces.forEach((place) => {
+          if (!place.location) return;
+
+          const marker = new AdvancedMarkerElement({
+            map,
+            position: place.location,
+            title: place.displayName || "Distillery or tasting room",
+            zIndex: 1000000,
+            gmpClickable: true,
+          });
+
+          markers.push(marker);
+
+          function openPopup() {
+            const stop = [place.displayName, place.formattedAddress]
+              .filter(Boolean)
+              .join(", ");
+
+            const content = document.createElement("div");
+            content.className = styles.placePopup;
+
+            const name = document.createElement("strong");
+            name.textContent = place.displayName || "Distillery or tasting room";
+
+            const address = document.createElement("div");
+            address.textContent = place.formattedAddress || "";
+
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = styles.smallBtn;
+            button.disabled = !place.formattedAddress;
+            button.textContent = stops.includes(stop)
+              ? "Remove stop"
+              : "Add stop";
+
+            button.onclick = () => {
+              setStops((prev) =>
+                prev.includes(stop)
+                  ? prev.filter((item) => item !== stop)
+                  : [...prev, stop]
+              );
+              infoWindow.close();
+            };
+
+            content.append(name, address, button);
+            infoWindow.setContent(content);
+            infoWindow.open({ map, anchor: marker });
+          }
+
+          marker.addEventListener("gmp-click", openPopup);
+          removeListeners.push(() =>
+            marker.removeEventListener("gmp-click", openPopup)
+          );
+        });
+      } catch (error) {
+        console.error("Place markers failed:", error);
+        setPlacesStatus("Places found, but map pins could not load.");
+      }
+    }
+
+    showPlaceMarkers();
+
+    return () => {
+      cancelled = true;
+      infoWindow?.close();
+      removeListeners.forEach((remove) => remove());
+      markers.forEach((marker) => {
+        marker.map = null;
+      });
+    };
+  }, [discoveredPlaces, stops]);
+
+    async function discoverPlaces() {
+    const map = mapInstanceRef.current;
+    const bounds = map?.getBounds();
+
+    if (!bounds) {
+      setPlacesStatus("Wait for the map to load, then try again.");
+      return;
+    }
+
+    setPlacesLoading(true);
+    setPlacesStatus("Finding distilleries and tasting rooms…");
+    setDiscoveredPlaces([]);
+
+    try {
+      const { Place } = await importLibrary("places");
+
+      const { places } = await Place.searchByText({
+        textQuery: "distilleries and spirits tasting rooms",
+        fields: ["id", "displayName", "formattedAddress", "location"],
+        locationRestriction: bounds,
+        maxResultCount: 20,
+      });
+
+            const route =
+        directionsRendererRef.current?.getDirections()?.routes?.[0];
+
+      if (!route) {
+        setPlacesStatus("Load a route before searching for nearby stops.");
+        return;
+      }
+
+      const detailedPath = route.legs.flatMap((leg) =>
+        leg.steps.flatMap((step) => step.path || [])
+      );
+      const path = detailedPath.length >= 2
+        ? detailedPath
+        : route.overview_path || [];
+
+      const nearbyPlaces = places.filter((place) =>
+        isNearRoute(place.location, path, 10)
+      );
+
+      setDiscoveredPlaces(nearbyPlaces);
+      setPlacesStatus(
+        nearbyPlaces.length
+          ? `Found ${nearbyPlaces.length} places within about 10 miles of your route.`
+          : "No matches within 10 miles of your route in this map area."
+      );
+    } catch (error) {
+      console.error("Places search failed:", error);
+      setPlacesStatus("Search failed. Please try again.");
+    } finally {
+      setPlacesLoading(false);
+    }
+  }
+
   const canAdd = normalizeStop(newStop).length > 0;
 
   function addStop() {
@@ -322,6 +513,8 @@ avoidTolls: routeStyle === "backroads",
     setNewStop("");
     setTripName("");
     setSelectedTripId("");
+    setDiscoveredPlaces([]);
+    setPlacesStatus("");
     setMapStatus("Enter a start and end to preview the route.");
 
     if (directionsRendererRef.current) {
@@ -536,6 +729,59 @@ avoidTolls: routeStyle === "backroads",
           >
             Add stop
           </button>
+        </div>
+
+                <div className={styles.field}>
+          <button
+            onClick={discoverPlaces}
+            disabled={placesLoading}
+            className={styles.btn}
+            type="button"
+          >
+            {placesLoading
+              ? "Searching…"
+              : "Find Distilleries & Tasting Rooms"}
+          </button>
+
+          <p className={styles.sub} role="status" aria-live="polite">
+            {placesStatus || "Search the area currently shown on the map."}
+          </p>
+                    <div className={styles.list}>
+            {discoveredPlaces.map((place) => {
+              const stop = [place.displayName, place.formattedAddress]
+                .filter(Boolean)
+                .join(", ");
+              const alreadyAdded = stops.includes(stop);
+
+              return (
+                <div key={place.id} className={styles.item}>
+                  <div>
+                    <div className={styles.stopText}>
+                      {place.displayName}
+                    </div>
+                    <div className={styles.meta}>
+                      {place.formattedAddress}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={styles.smallBtn}
+                    disabled={!place.formattedAddress}
+                    onClick={() =>
+                      setStops((prev) =>
+                        prev.includes(stop)
+                          ? prev.filter((item) => item !== stop)
+                          : [...prev, stop]
+                      )
+                    }
+                  >
+                    {alreadyAdded ? "Remove stop" : "Add stop"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className={styles.sectionHead}>

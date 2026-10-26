@@ -514,3 +514,74 @@
     text-align: center;
   }
 }
+
+/* --- Distillery Discovery Controls --- */
+
+.card > .addRow + .field {
+  margin-top: 18px;
+}
+
+.card > .addRow + .field > .sub {
+  margin: 0;
+}
+
+@media (min-width: 1024px) {
+  .card {
+    grid-template-areas:
+      "title title"
+      "subtitle subtitle"
+      "saved map"
+      "style map"
+      "endpoints map"
+      "add map"
+      "discovery map"
+      "stopsHead map"
+      "stops map"
+      "actions actions";
+  }
+
+  .card > .addRow + .field {
+    grid-area: discovery;
+  }
+}
+
+.card > .addRow + .field > .btn {
+  background: #c08045;
+  color: #120d08;
+  border: 1px solid #e0ac78;
+  padding: 16px 18px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  white-space: normal;
+}
+
+.card > .addRow + .field > .btn:hover:not(:disabled) {
+  background: #d99a60;
+  border-color: #f0c79e;
+}
+
+.placePopup {
+  max-width: 260px;
+  padding: 4px;
+  color: #202020;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.placePopup .smallBtn {
+  margin-top: 12px;
+  background: #c08045;
+  border-color: #c08045;
+  color: #120d08;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.placePopup .smallBtn:hover:not(:disabled) {
+  background: #d99a60;
+  border-color: #d99a60;
+}
