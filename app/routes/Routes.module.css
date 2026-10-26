@@ -10,6 +10,25 @@
 /* Top intro */
 .hero {
   margin-bottom: 2.5rem;
+  min-height: 340px;
+  padding: 2rem;
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.75),
+      rgba(0, 0, 0, 0.15)
+    ),
+    url("/images/backroads-hero-autumn.jpg");
+
+  background-size: cover;
+  background-position: center 70%;
+  background-repeat: no-repeat;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .kicker {
@@ -37,12 +56,6 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 1.75rem;
-}
-
-@media (min-width: 800px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 .card {
@@ -114,4 +127,45 @@
   margin-top: 0.5rem;
   font-size: 0.8rem;
   color: #a3a3a3;
+}
+
+/* --- Featured Backroads Heading --- */
+
+.featuredHeading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #f5c46a;
+  margin: 1rem 0 0;
+}
+
+/* --- Featured Route Planner --- */
+
+.grid > .card:first-child {
+  border: 1px solid rgba(195, 142, 49, 0.65);
+  background: linear-gradient(
+    135deg,
+    rgba(195, 142, 49, 0.1),
+    #0d0d0d 55%
+  );
+  padding: 2.25rem;
+}
+
+/* --- Route Planner Primary Button --- */
+
+.grid > .card:first-child .link {
+  display: inline-block;
+  background: #c38e31;
+  color: #000;
+  border: 1px solid #c38e31;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.grid > .card:first-child .link:hover {
+  background: #e0ad55;
+  border-color: #e0ad55;
+  color: #000;
 }

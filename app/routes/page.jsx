@@ -23,7 +23,35 @@ export default function RoutesPage() {
 
       {/* Route grid */}
       <div className={styles.grid}>
-        {/* Aspen Run card */}
+
+        {/* Route Planner card */}
+        <article className={styles.card}>
+          <p className={styles.tag}>Tool • Build your own</p>
+          <h2 className={styles.cardTitle}>Route Planner</h2>
+          <p className={styles.meta}>Start · Stops · End · Share link</p>
+
+          <p className={styles.copy}>
+            Build a route your way. Add a start and end, stack stops in between, then
+            kick it straight over to Google Maps. Save multiple trips right in your
+            browser.
+          </p>
+
+          <div className={styles.chipRow}>
+            <span className={styles.chip}>Custom</span>
+            <span className={styles.chip}>Shareable</span>
+            <span className={styles.chip}>Saved trips</span>
+          </div>
+
+          <div className={styles.linkRow}>
+            <Link href="/routes/planner" className={styles.link}>
+              Open Route Planner
+            </Link>
+            <p className={styles.hint}>No account. No fluff. Just build and go.</p>
+          </div>
+        </article>
+
+              {/* Aspen Run card */}
+              <h2 className={styles.featuredHeading}>Featured Backroads</h2>
         <article className={styles.card}>
           <p className={styles.tag}>Colorado • Featured route</p>
           <h2 className={styles.cardTitle}>Aspen Run — Independence Pass Loop</h2>
@@ -51,31 +79,6 @@ export default function RoutesPage() {
           </div>
         </article>
 
-        {/* Route Planner card */}
-        <article className={styles.card}>
-          <p className={styles.tag}>Tool • Build your own</p>
-          <h2 className={styles.cardTitle}>Route Planner</h2>
-          <p className={styles.meta}>Start · Stops · End · Share link</p>
-
-          <p className={styles.copy}>
-            Build a route your way. Add a start and end, stack stops in between, then
-            kick it straight over to Google Maps. Save multiple trips right in your
-            browser.
-          </p>
-
-          <div className={styles.chipRow}>
-            <span className={styles.chip}>Custom</span>
-            <span className={styles.chip}>Shareable</span>
-            <span className={styles.chip}>Saved trips</span>
-          </div>
-
-          <div className={styles.linkRow}>
-            <Link href="/routes/planner" className={styles.link}>
-              Open Route Planner
-            </Link>
-            <p className={styles.hint}>No account. No fluff. Just build and go.</p>
-          </div>
-        </article>
       </div>
     </section>
   );
