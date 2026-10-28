@@ -262,6 +262,7 @@ avoidTolls: routeStyle === "backroads",
       const decoded = decodeRoute(r);
 
       if (decoded) {
+        setRouteStyle(searchParams.get("style") === "backroads" ? "backroads" : "fastest");
         setStart(decoded.start);
         setEnd(decoded.end);
         setStops(decoded.stops);

@@ -50,6 +50,37 @@ export default function RoutesPage() {
           </div>
         </article>
 
+                {/* Find My Route card */}
+        <article className={styles.card}>
+          <p className={styles.tag}>Tool • Let the road surprise you</p>
+          <h2 className={styles.cardTitle}>Find My Route</h2>
+          <p className={styles.meta}>
+            Starting point · Drive time · Fastest or Backroads
+          </p>
+
+          <p className={styles.copy}>
+            Have time for a drive but no destination in mind? Choose where
+            you’re starting, pick one to eight hours, and let us find your
+            next town—with a distillery or tasting room within 10 miles.
+            Go one way or make it a round trip.
+          </p>
+
+          <div className={styles.chipRow}>
+            <span className={styles.chip}>Surprise destination</span>
+            <span className={styles.chip}>Whiskey stops</span>
+            <span className={styles.chip}>Find another</span>
+          </div>
+
+          <div className={styles.linkRow}>
+            <Link href="/routes/find" className={styles.link}>
+              Find My Route
+            </Link>
+            <p className={styles.hint}>
+              Pick your time. We’ll find somewhere worth the drive.
+            </p>
+          </div>
+        </article>
+
               {/* Aspen Run card */}
               <h2 className={styles.featuredHeading}>Featured Backroads</h2>
         <article className={styles.card}>

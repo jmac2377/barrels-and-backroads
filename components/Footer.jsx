@@ -6,7 +6,7 @@ export default function Footer() {
 {/* Brand Section */}
 <div className={styles.brandBlock}>
   <h3 className={styles.footerTitle}>
-    The road keeps going.
+    The road keeps going...
   </h3>
 
   <p className={styles.footerLead}>
@@ -14,7 +14,7 @@ export default function Footer() {
   </p>
 
   <p className={styles.footerIdentity}>
-    Navajo-owned and operated
+    Navajo-Owned and Operated
   </p>
 
   <img

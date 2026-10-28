@@ -169,3 +169,37 @@
   border-color: #e0ad55;
   color: #000;
 }
+
+/* --- Find My Route — Turquoise --- */
+
+.grid > .card:nth-of-type(2) {
+  border: 1px solid rgba(64, 184, 174, 0.65);
+  background: linear-gradient(
+    135deg,
+    rgba(64, 184, 174, 0.1),
+    #0d0d0d 55%
+  );
+  padding: 2.25rem;
+}
+
+.grid > .card:nth-of-type(2) .tag {
+  color: #65cec4;
+}
+
+.grid > .card:nth-of-type(2) .link {
+  display: inline-block;
+  background: #40b8ae;
+  color: #000;
+  border: 1px solid #40b8ae;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.grid > .card:nth-of-type(2) .link:hover {
+  background: #75d6cd;
+  border-color: #75d6cd;
+  color: #000;
+}
