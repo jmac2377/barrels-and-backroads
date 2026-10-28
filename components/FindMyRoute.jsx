@@ -71,69 +71,81 @@ async function getCandidateTowns(
   origin,
   selectedHours,
   tripType,
-  routeStyle
+  routeStyle,
+  catalog,
+  isCurrent
 ) {
   const oneWayHours =
-    Number(selectedHours) / (tripType === "roundtrip" ? 2 : 1);
+    (Number(selectedHours) + 0.5) /
+    (tripType === "roundtrip" ? 2 : 1);
 
-  const searchDistance = Math.max(
-    10,
-    oneWayHours * (routeStyle === "backroads" ? 30 : 50)
-  );
-
-  const bearing = Math.random() * Math.PI * 2;
+  const radius = oneWayHours * 90 + 10;
+  const latitude = origin.lat();
+  const longitude = origin.lng();
+  const latitudeSpan = radius / 69;
   const longitudeScale = Math.max(
     0.2,
-    Math.cos(origin.lat() * Math.PI / 180)
+    Math.cos(latitude * Math.PI / 180)
+  );
+  const longitudeSpan = Math.min(
+    179,
+    radius / (69 * longitudeScale)
   );
 
-  const latitude =
-    origin.lat() + Math.cos(bearing) * searchDistance / 69;
-  const longitude =
-    origin.lng() +
-    Math.sin(bearing) * searchDistance / (69 * longitudeScale);
+  const wrap = (value) => ((value + 540) % 360) - 180;
+  const north = Math.min(85, latitude + latitudeSpan);
+  const south = Math.max(-85, latitude - latitudeSpan);
+  const east = wrap(longitude + longitudeSpan);
+  const west = wrap(longitude - longitudeSpan);
 
-  const halfWidth = Math.max(20, searchDistance * 0.75);
-  const latitudeSpan = halfWidth / 69;
-  const longitudeSpan = halfWidth / (69 * longitudeScale);
-  const wrapLongitude = (value) => ((value + 540) % 360) - 180;
+  const areas = [
+    { north, south: latitude, east: longitude, west },
+    { north, south: latitude, east, west: longitude },
+    { north: latitude, south, east: longitude, west },
+    { north: latitude, south, east, west: longitude },
+  ];
 
-  const { places } = await Place.searchByText({
-    textQuery: "distilleries and spirits tasting rooms",
-    fields: [
-      "id",
-      "displayName",
-      "formattedAddress",
-      "addressComponents",
-      "location",
-      "businessStatus",
-    ],
-    locationRestriction: {
-      north: Math.min(85, latitude + latitudeSpan),
-      south: Math.max(-85, latitude - latitudeSpan),
-      east: wrapLongitude(longitude + longitudeSpan),
-      west: wrapLongitude(longitude - longitudeSpan),
-    },
-    maxResultCount: 20,
-  });
+  while (catalog.nextArea < areas.length) {
+    if (!isCurrent()) return [];
 
-  const towns = new Map();
+    const { places } = await Place.searchByText({
+      textQuery: "distilleries and spirits tasting rooms",
+      fields: [
+        "id",
+        "displayName",
+        "formattedAddress",
+        "addressComponents",
+        "location",
+        "businessStatus",
+      ],
+      locationRestriction: areas[catalog.nextArea],
+      maxResultCount: 20,
+    });
 
-  for (const place of places) {
-    if (!place.location || place.businessStatus !== "OPERATIONAL") continue;
-    if (/\b(office|warehouse)\b/i.test(place.displayName || "")) continue;
+    if (!isCurrent()) return [];
 
-    const town = getTownFromPlace(place);
-    if (!town) continue;
+    for (const place of places) {
+      if (!place.location || place.businessStatus !== "OPERATIONAL") continue;
+      if (/\b(office|warehouse)\b/i.test(place.displayName || "")) continue;
 
-    if (!towns.has(town.key)) {
-      towns.set(town.key, { ...town, businesses: [] });
+      const town = getTownFromPlace(place);
+      if (!town) continue;
+
+      if (!catalog.towns.has(town.key)) {
+        catalog.towns.set(town.key, { ...town, businesses: [] });
+      }
+
+      const businesses = catalog.towns.get(town.key).businesses;
+
+      if (!businesses.some((existing) => existing.id === place.id)) {
+        businesses.push(place);
+      }
     }
 
-    towns.get(town.key).businesses.push(place);
+    catalog.nextArea += 1;
   }
 
-  return Array.from(towns.values());
+  return Array.from(catalog.towns.values());
 }
 
 function buildPlannerUrl(result) {
@@ -232,7 +244,8 @@ export default function FindMyRoute() {
     };
   }, [result]);
 
-    async function findRoute(event) {
+  
+  async function findRoute(event) {
     event?.preventDefault();
     if (isSearching || !start.trim()) return;
 
@@ -240,7 +253,6 @@ export default function FindMyRoute() {
     const isCurrent = () => searchVersionRef.current === version;
 
     setIsSearching(true);
-    setResult(null);
     setStatus("Finding a town worth the drive…");
 
     try {
@@ -265,46 +277,57 @@ export default function FindMyRoute() {
           return;
         }
 
-        cache = { origin, towns: [], seen: new Set() };
+        cache = {
+          origin,
+          catalog: { towns: new Map(), nextArea: 0 },
+          towns: null,
+          nextRouteAt: 0,
+        };
+
         searchCacheRef.current = cache;
       }
 
-      const service = new DirectionsService();
-      let checked = 0;
-      let batches = 0;
+      if (cache.towns === null) {
+        setStatus(
+          "Checking distilleries and tasting rooms around your starting point…"
+        );
 
-      while (checked < 6) {
+        const candidates = await getCandidateTowns(
+          Place,
+          cache.origin.location,
+          hours,
+          tripType,
+          routeStyle,
+          cache.catalog,
+          isCurrent
+        );
+
         if (!isCurrent()) return;
 
-        if (!cache.towns.length) {
-          if (batches >= 2) break;
-          batches += 1;
-
-          const candidates = await getCandidateTowns(
-            Place,
-            cache.origin.location,
-            hours,
-            tripType,
-            routeStyle
-          );
-
-          if (!isCurrent()) return;
-
-          cache.towns = candidates.filter(
-            (town) => !cache.seen.has(town.key)
-          );
-
-          if (!cache.towns.length) continue;
+        for (let i = candidates.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
         }
 
-        const index = Math.floor(Math.random() * cache.towns.length);
-        const [town] = cache.towns.splice(index, 1);
+        cache.towns = candidates;
+      }
 
-        if (cache.seen.has(town.key)) continue;
-        cache.seen.add(town.key);
-        checked += 1;
+      const service = new DirectionsService();
 
-                setStatus(`Checking the drive to ${town.name}…`);
+      while (cache.towns.length) {
+        if (!isCurrent()) return;
+
+        const town = cache.towns.shift();
+        setStatus(`Checking the drive to ${town.name}…`);
+
+        const waitMs = Math.max(0, cache.nextRouteAt - Date.now());
+
+        if (waitMs) {
+          await new Promise((resolve) => window.setTimeout(resolve, waitMs));
+        }
+
+        if (!isCurrent()) return;
+        cache.nextRouteAt = Date.now() + 2100;
 
         const origin = { placeId: cache.origin.id };
         const destination = town.query;
@@ -327,24 +350,32 @@ export default function FindMyRoute() {
           if (!isCurrent()) return;
 
           const code = String(error?.code || error?.message || error);
+
           if (/ZERO_RESULTS|NOT_FOUND/.test(code)) continue;
 
+          cache.towns.unshift(town);
           throw error;
         }
 
         if (!isCurrent()) return;
 
         const legs = directions.routes?.[0]?.legs || [];
-        const expectedLegs = isRoundTrip ? 2 : 1;
 
         if (
-          legs.length !== expectedLegs ||
+          legs.length !== (isRoundTrip ? 2 : 1) ||
           legs.some((leg) => !Number.isFinite(leg.duration?.value))
         ) {
           continue;
         }
 
-                const townPlace = {
+        const seconds = legs.reduce(
+          (total, leg) => total + leg.duration.value,
+          0
+        );
+
+        if (!matchesDriveTime(seconds, hours)) continue;
+
+        const townPlace = {
           id: directions.geocoded_waypoints?.[1]?.place_id,
           location: legs[0].end_location,
         };
@@ -356,13 +387,6 @@ export default function FindMyRoute() {
         );
 
         if (!business) continue;
-
-        const seconds = legs.reduce(
-          (total, leg) => total + leg.duration.value,
-          0
-        );
-
-        if (!matchesDriveTime(seconds, hours)) continue;
 
         setResult({
           townName: town.name,
@@ -382,10 +406,12 @@ export default function FindMyRoute() {
       }
 
       setStatus(
-        "No matching destination found in this search. Try again to explore another area."
+        result
+          ? "No more matching destinations found among the towns returned for these choices."
+          : "No matching destination found among the towns returned for these choices."
       );
     } catch (error) {
-            if (!isCurrent()) return;
+      if (!isCurrent()) return;
 
       const message = `${error?.code || ""} ${error?.message || error}`;
       const quotaReached =
