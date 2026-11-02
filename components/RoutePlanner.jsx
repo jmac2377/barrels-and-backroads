@@ -5,10 +5,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import styles from "./RoutePlanner.module.css";
 
-setOptions({
-  key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-  version: "weekly",
-});
+if (typeof window !== "undefined") {
+  setOptions({
+    key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+    version: "weekly",
+  });
+}
 
 const STORAGE_KEY = "bb_route_planner_v1";
 const STORAGE_SAVED = "bb_route_planner_saved_v1";
@@ -139,6 +141,9 @@ export default function RoutePlanner() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const directionsRendererRef = useRef(null);
+  const activeRouteRef = useRef(null);
+  const routeGraphicsRef = useRef([]);
+  const routeMarkersRef = useRef([]);
 
   const [mapError, setMapError] = useState("");
   const [mapStatus, setMapStatus] = useState(
@@ -176,8 +181,8 @@ const directionsUrl = useMemo(
       try {
         const { Map } = await importLibrary("maps");
         await importLibrary("places");
-        const { DirectionsService, DirectionsRenderer } =
-          await importLibrary("routes");
+        const { DirectionsService, DirectionsRenderer, Route } =
+        await importLibrary("routes");
 
         if (cancelled || !mapRef.current) return;
 
