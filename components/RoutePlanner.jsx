@@ -5,11 +5,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import styles from "./RoutePlanner.module.css";
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && !window.__bbGoogleMapsConfigured) {
   setOptions({
     key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     version: "weekly",
   });
+
+  window.__bbGoogleMapsConfigured = true;
 }
 
 const STORAGE_KEY = "bb_route_planner_v1";
@@ -96,30 +98,56 @@ function makeId() {
 }
 
 function isNearRoute(location, path, maxMiles = 10) {
-  if (!location || path.length < 2) return false;
+  if (!location || !path || path.length < 2) return false;
+
+  const getLat = (point) =>
+    typeof point.lat === "function" ? point.lat() : point.lat;
+
+  const getLng = (point) =>
+    typeof point.lng === "function" ? point.lng() : point.lng;
 
   const radians = Math.PI / 180;
   const earthMiles = 3958.8;
-  const latitude = location.lat();
-  const longitude = location.lng();
+
+  const latitude = getLat(location);
+  const longitude = getLng(location);
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    return false;
+  }
+
   const longitudeScale = Math.cos(latitude * radians);
 
   function project(point) {
+    const pointLat = getLat(point);
+    const pointLng = getLng(point);
+
     const longitudeDifference =
-      ((point.lng() - longitude + 540) % 360) - 180;
+      ((pointLng - longitude + 540) % 360) - 180;
 
     return {
       x: longitudeDifference * radians * earthMiles * longitudeScale,
-      y: (point.lat() - latitude) * radians * earthMiles,
+      y: (pointLat - latitude) * radians * earthMiles,
     };
   }
 
   for (let i = 1; i < path.length; i++) {
     const a = project(path[i - 1]);
     const b = project(path[i]);
+
+    if (
+      !Number.isFinite(a.x) ||
+      !Number.isFinite(a.y) ||
+      !Number.isFinite(b.x) ||
+      !Number.isFinite(b.y)
+    ) {
+      continue;
+    }
+
     const dx = b.x - a.x;
     const dy = b.y - a.y;
     const lengthSquared = dx * dx + dy * dy;
+
     const t = lengthSquared
       ? Math.max(0, Math.min(1, -(a.x * dx + a.y * dy) / lengthSquared))
       : 0;
@@ -181,8 +209,8 @@ const directionsUrl = useMemo(
       try {
         const { Map } = await importLibrary("maps");
         await importLibrary("places");
-        const { DirectionsService, DirectionsRenderer, Route } =
-        await importLibrary("routes");
+
+        const { Route } = await importLibrary("routes");
 
         if (cancelled || !mapRef.current) return;
 
@@ -195,53 +223,139 @@ const directionsUrl = useMemo(
           fullscreenControl: true,
         });
 
-        const renderer = directionsRendererRef.current ?? new DirectionsRenderer({
-          map,
-          suppressMarkers: false,
-        });
-
         mapInstanceRef.current = map;
-        directionsRendererRef.current = renderer;
 
         const s = normalizeStop(start);
         const e = normalizeStop(end);
         const w = (stops || []).map(normalizeStop).filter(Boolean);
 
         if (!s || !e) {
+          activeRouteRef.current = null;
+          routeGraphicsRef.current.forEach((line) => {
+  line.setMap(null);
+});
+
+routeMarkersRef.current.forEach((marker) => {
+  marker.map = null;
+});
+
+routeGraphicsRef.current = [];
+routeMarkersRef.current = [];
+
+          routeGraphicsRef.current = [];
+          routeMarkersRef.current = [];
           setMapStatus("Enter a start and end to preview the route.");
           return;
         }
 
         setMapStatus("Loading route preview…");
 
-        const service = new DirectionsService();
-
-        service.route(
-          {
-            origin: s,
-            destination: e,
-            waypoints: w.map((stop) => ({
-              location: stop,
-              stopover: true,
-            })),
-            travelMode: google.maps.TravelMode.DRIVING,
-avoidHighways: routeStyle === "backroads",
-avoidTolls: routeStyle === "backroads",
+        const request = {
+          origin: s,
+          destination: e,
+          intermediates: w.map((stop) => stop),
+          travelMode: "DRIVING",
+          routingPreference: "TRAFFIC_UNAWARE",
+          routeModifiers: {
+            avoidHighways: routeStyle === "backroads",
+            avoidTolls: routeStyle === "backroads",
+            avoidFerries: routeStyle === "backroads",
           },
-          (result, status) => {
-            if (cancelled) return;
+          fields: ["path", "legs", "viewport"],
+        };
 
-            if (status === "OK" && result) {
-              renderer.setDirections(result);
-              setMapStatus("Route preview loaded.");
-              setMapError("");
-            } else {
-  setMapStatus(`Route preview failed: ${status}`);
-            }
-          }
-        );
+
+        const { routes } = await Route.computeRoutes(request);
+
+        if (cancelled) return;
+
+        if (!routes?.length) {
+          setMapStatus("No route found.");
+          return;
+        }
+
+        const route = routes[0];
+
+        // Remove the previous route before creating new graphics.
+        routeGraphicsRef.current.forEach((line) => {
+          line.setMap(null);
+        });
+
+        routeMarkersRef.current.forEach((marker) => {
+          marker.map = null;
+        });
+
+        routeGraphicsRef.current = [];
+        routeMarkersRef.current = [];
+        activeRouteRef.current = null;
+
+        const polylines = route.createPolylines({
+          polylineOptions: {
+            strokeColor: "#4285F4",
+            strokeOpacity: 1,
+            strokeWeight: 5,
+          },
+        });
+
+const { AdvancedMarkerElement, PinElement } =
+  await importLibrary("marker");
+
+const waypointPositions = [
+  route.legs[0]?.startLocation,
+  ...route.legs.map((leg) => leg.endLocation),
+];
+
+const markers = waypointPositions
+  .filter(Boolean)
+  .map((position, index) => {
+    const letter = String.fromCharCode(65 + index);
+
+    const pin = new PinElement({
+      glyphText: letter,
+      background: "#f09e06",
+      borderColor: "#000000",
+      glyphColor: "#FFFFFF",
+    });
+
+    return new AdvancedMarkerElement({
+      position,
+      content: pin,
+      title: `Waypoint ${letter}`,
+    });
+  });
+
+        if (cancelled) {
+          polylines.forEach((line) => line.setMap(null));
+          markers.forEach((marker) => {
+            marker.map = null;
+          });
+          return;
+        }
+
+        routeGraphicsRef.current = polylines;
+        routeMarkersRef.current = markers;
+        activeRouteRef.current = route;
+
+        polylines.forEach((line) => {
+          line.setMap(map);
+        });
+
+        markers.forEach((marker) => {
+          marker.map = map;
+        });
+
+        if (route.path?.length) {
+          const bounds = new google.maps.LatLngBounds();
+          route.path.forEach((point) => bounds.extend(point));
+          map.fitBounds(bounds);
+        }
+
+        setMapStatus("Route preview loaded.");
+
+        setMapError("");
       } catch (error) {
-        console.error(error);
+        if (cancelled) return;
+        console.error("Routes API failed:", error);
         setMapError("Google Map failed to load.");
       }
     }
@@ -444,20 +558,14 @@ avoidTolls: routeStyle === "backroads",
         maxResultCount: 20,
       });
 
-            const route =
-        directionsRendererRef.current?.getDirections()?.routes?.[0];
+      const route = activeRouteRef.current;
 
       if (!route) {
         setPlacesStatus("Load a route before searching for nearby stops.");
         return;
       }
 
-      const detailedPath = route.legs.flatMap((leg) =>
-        leg.steps.flatMap((step) => step.path || [])
-      );
-      const path = detailedPath.length >= 2
-        ? detailedPath
-        : route.overview_path || [];
+      const path = route.path || [];
 
       const nearbyPlaces = places.filter((place) =>
         isNearRoute(place.location, path, 10)
@@ -523,9 +631,18 @@ avoidTolls: routeStyle === "backroads",
     setPlacesStatus("");
     setMapStatus("Enter a start and end to preview the route.");
 
-    if (directionsRendererRef.current) {
-      directionsRendererRef.current.setDirections({ routes: [] });
-    }
+        activeRouteRef.current = null;
+
+    routeGraphicsRef.current.forEach((line) => {
+      line.setMap(null);
+    });
+
+    routeMarkersRef.current.forEach((marker) => {
+      marker.map = null;
+    });
+
+    routeGraphicsRef.current = [];
+    routeMarkersRef.current = [];
 
     router.replace(pathname, { scroll: false });
 
