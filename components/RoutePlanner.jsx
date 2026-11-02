@@ -5,6 +5,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import styles from "./RoutePlanner.module.css";
 
+setOptions({
+  key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+  version: "weekly",
+});
+
 const STORAGE_KEY = "bb_route_planner_v1";
 const STORAGE_SAVED = "bb_route_planner_saved_v1";
 
@@ -169,11 +174,6 @@ const directionsUrl = useMemo(
       }
 
       try {
-        setOptions({
-          key: apiKey,
-          version: "weekly",
-        });
-
         const { Map } = await importLibrary("maps");
         await importLibrary("places");
         const { DirectionsService, DirectionsRenderer } =
