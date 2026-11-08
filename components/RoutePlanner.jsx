@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import styles from "./RoutePlanner.module.css";
+import { trackRouteEvent } from "../lib/analytics";
 
 if (typeof window !== "undefined" && !window.__bbGoogleMapsConfigured) {
   setOptions({
@@ -86,11 +87,14 @@ function safeReadJSON(key, fallback) {
 }
 
 function safeWriteJSON(key, value) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return false;
 
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
-  } catch {}
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function makeId() {
@@ -352,6 +356,11 @@ const markers = waypointPositions
 
         setMapStatus("Route preview loaded.");
 
+        trackRouteEvent("planner_route_loaded", {
+  route_style: routeStyle,
+  stop_count: w.length,
+});
+
         setMapError("");
       } catch (error) {
         if (cancelled) return;
@@ -572,6 +581,10 @@ const markers = waypointPositions
       );
 
       setDiscoveredPlaces(nearbyPlaces);
+      trackRouteEvent("planner_places_searched", {
+  route_style: routeStyle,
+  result_count: nearbyPlaces.length,
+});
       setPlacesStatus(
         nearbyPlaces.length
           ? `Found ${nearbyPlaces.length} places within about 10 miles of your route.`
@@ -696,9 +709,15 @@ const markers = waypointPositions
       alert("Saved.");
     }
 
-    next = next.slice(0, 50);
+        next = next.slice(0, 50);
     setSavedTrips(next);
-    safeWriteJSON(STORAGE_SAVED, next);
+
+    if (safeWriteJSON(STORAGE_SAVED, next)) {
+      trackRouteEvent("planner_trip_saved", {
+        save_action: existingIndex >= 0 ? "updated" : "created",
+        stop_count: w.length,
+      });
+    }
   }
 
   function loadTrip(id) {
@@ -713,6 +732,12 @@ const markers = waypointPositions
     setTripName(item.name || "");
 
     router.replace(pathname, { scroll: false });
+
+        trackRouteEvent("planner_trip_loaded", {
+      stop_count: Array.isArray(item.route.stops)
+        ? item.route.stops.length
+        : 0,
+    });
   }
 
   function deleteTrip(id) {
@@ -729,6 +754,11 @@ const markers = waypointPositions
 
     try {
       await navigator.clipboard.writeText(directionsUrl);
+      trackRouteEvent("planner_link_copied", {
+  link_type: "google_maps",
+  route_style: routeStyle,
+  stop_count: stops.length,
+});
       alert("Copied Google Maps link.");
     } catch {
       prompt("Copy this link:", directionsUrl);
@@ -743,6 +773,11 @@ const markers = waypointPositions
 
     try {
       await navigator.clipboard.writeText(url);
+      trackRouteEvent("planner_link_copied", {
+  link_type: "share",
+  route_style: routeStyle,
+  stop_count: stops.length,
+});
       alert("Copied share URL.");
     } catch {
       prompt("Copy this share URL:", url);
@@ -982,7 +1017,15 @@ const markers = waypointPositions
             </button>
           </div>
 
-          <a
+                    <a
+            onClick={() => {
+              if (!directionsUrl) return;
+
+              trackRouteEvent("planner_maps_opened", {
+                route_style: routeStyle,
+                stop_count: stops.length,
+              });
+            }}
             href={directionsUrl || "#"}
             target="_blank"
             rel="noreferrer"

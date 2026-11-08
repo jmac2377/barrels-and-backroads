@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader";
 import styles from "./FindMyRoute.module.css";
+import { trackRouteEvent } from "../lib/analytics";
 
 async function loadRouteTools() {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -249,6 +250,15 @@ export default function FindMyRoute() {
     event?.preventDefault();
     if (isSearching || !start.trim()) return;
 
+    const searchAction = result ? "find_another" : "initial";
+
+trackRouteEvent("find_route_started", {
+  search_action: searchAction,
+  drive_hours: Number(hours),
+  trip_type: tripType,
+  route_style: routeStyle,
+});
+
     const version = ++searchVersionRef.current;
     const isCurrent = () => searchVersionRef.current === version;
 
@@ -402,6 +412,12 @@ export default function FindMyRoute() {
         });
 
         setStatus("Found your next destination.");
+        trackRouteEvent("find_route_found", {
+  search_action: searchAction,
+  drive_hours: Number(hours),
+  trip_type: tripType,
+  route_style: routeStyle,
+});
         return;
       }
 
@@ -567,7 +583,15 @@ export default function FindMyRoute() {
           <button
             type="button"
             className={styles.button}
-            onClick={() => window.location.assign(buildPlannerUrl(result))}
+            onClick={() => {
+  trackRouteEvent("find_route_used", {
+    trip_type: result.tripType,
+    route_style: result.routeStyle,
+    transport_type: "beacon",
+  });
+
+  window.location.assign(buildPlannerUrl(result));
+}}
           >
             Use This Route
           </button>
